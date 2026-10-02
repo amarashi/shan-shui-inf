@@ -9,10 +9,8 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { describe, expect, test } from "vitest";
 import { normalise } from "../tools/lib/normalise.js";
-import { Noise } from "../src/noise.js";
-import { paperTexture } from "../src/paper.js";
-import { random, seed } from "../src/rng.js";
-import { createWorld } from "../src/world/upstream.js";
+import { random } from "../src/rng.js";
+import { replay } from "./support/replay.js";
 
 const golden = JSON.parse(readFileSync(new URL("../golden/upstream.json", import.meta.url), "utf8"));
 const sha = (s) => createHash("sha256").update(normalise(s)).digest("hex");
@@ -24,24 +22,6 @@ Math.random = () => {
   throw new Error("generation must not call Math.random");
 };
 
-/** Replay a page load of upstream/index.html?seed=S followed by the golden scroll script. */
-function replay(s) {
-  Noise.reset(); // a fresh page starts with an empty noise table
-  seed(s);
-  const world = createWorld();
-  const views = [];
-  for (let i = 0; i < golden.steps.length; i++) {
-    if (i === 0) {
-      world.update(); // inline script in #BG
-      paperTexture(() => {}); // last script on the page; consumes random numbers
-    } else {
-      world.xcroll(golden.steps[i]);
-    }
-    views.push(sha(world.MEM.canv));
-  }
-  return { world, views };
-}
-
 test("the modules do not replace Math.random", () => {
   expect(random).not.toBe(Math.random);
   expect(realMathRandom.toString()).toContain("[native code]");
@@ -49,7 +29,8 @@ test("the modules do not replace Math.random", () => {
 
 describe.each(Object.keys(golden.seeds))("seed %s", (s) => {
   const want = golden.seeds[s];
-  const { world, views } = replay(s);
+  const views = [];
+  const world = replay(s, golden.steps.slice(1), (w) => views.push(sha(w.MEM.canv)));
 
   test("every chunk matches upstream", () => {
     const got = world.MEM.chunks.map((c) => sha(c.canv));
