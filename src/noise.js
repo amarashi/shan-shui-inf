@@ -48,6 +48,13 @@ export var Noise = {
     if (current === null) throw new Error("Noise.noise() called outside withNoise()");
     return current(x, y, z);
   },
+  /**
+   * Standardised noise: mean 0, spread 1 (mostly between -2 and 2). Use this to drive shapes;
+   * Noise.noise() varies only about +-0.12 around 0.47, like upstream's.
+   */
+  z: function (x, y, z) {
+    return (Noise.noise(x, y, z) - MEAN) / 0.125;
+  },
 };
 
 /**

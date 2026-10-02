@@ -42,3 +42,8 @@ No runtime dependencies so far.
 - **The paper texture is drawn in the worker too** and sent as one transferred pixel buffer.
 - **Tools serve pages with Vite again, configured not to reload** (`hmr: false`, `optimizeDeps.noDiscovery`). Workers do not use the page's import map, so plain static files cannot load the worker's package imports. This replaces the `node:http` server from Phase 1 and the import map in `index.html`.
 - **Measured on 3 October 2026** (seeds 1, 42, coast): the longest main-thread task while loading fell from 0.56 to 0.88 s (upstream, desktop) to 0 to 0.1 s, and from 2.6 to 4.2 s to 0.07 to 0.29 s under 4x CPU throttling, where the first screen now completes in 0.65 to 1.4 s instead of 3.3 to 5.0 s. What remains on the main thread is inserting markup. (The new engine draws different worlds for a seed, so this is a like-for-like comparison only roughly.)
+
+## Phase 3
+
+- **`Noise.z()` for shapes.** The calibrated noise (like upstream's) varies only about +-0.12 around 0.47, so `k * Noise.noise()` barely moves; new coast code uses `Noise.z()`, the same noise standardised to mean 0 and spread 1. Upstream elements keep `Noise.noise()`.
+- **Coast layers are drawn in pieces on a global lattice** (64 or 128 units, jittered by a hash of the piece index), and a piece or a surf run is drawn whole by the chunk where it starts. Shapes then never break or taper at chunk edges.

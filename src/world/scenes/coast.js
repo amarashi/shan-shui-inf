@@ -68,3 +68,9 @@ registerCoastLayer({
   name: "swash",
   draw: (r, i, ctx) => [{ y: r.y, list: swash(r.x0, r.x1, ctx.coast) }],
 });
+import { beach } from "../../elements/beach.js";
+
+registerCoastLayer({
+  name: "beach",
+  draw: (r, i, ctx) => [{ y: r.y, list: beach(r.x0, r.x1, ctx.coast) }],
+});
