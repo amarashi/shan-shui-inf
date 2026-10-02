@@ -150,6 +150,14 @@ Rules: no clean-ups that change numeric results, no reordering of random calls, 
 
 Known limit: golden hashes hold for the engine that recorded them (Chromium/V8). `Math.sin`, `Math.pow` and friends are not guaranteed bit-identical across JavaScript engines, so the same seed may differ slightly in Firefox or Safari. Do not promise cross-browser identical paintings.
 
+*As built (3 October 2026):*
+
+- The modules were produced by a conversion script that copies upstream line ranges and applies a short list of edits, so the code is upstream's line for line. See `docs/architecture.md`.
+- Step 3 needed no code change: `btoa` is global, and the DOM code (`update`'s `innerHTML`, the UI, the canvas) stayed in the compatibility page. `test/no-dom.test.js` guards it.
+- The "known limit" showed up even between two V8 versions. Node 24 and Chromium 151 differ in the last bit of one full-precision number (a sign's `rotate()`, seed `1234567890123`); every other number is hidden by `toFixed(1)`. So the Node test compares hashes after rounding numbers in `transform` attributes, and `pnpm golden:check --source modules` checks byte for byte in Chromium. Both pass.
+- The compatibility page is the root `index.html` (no doctype, like upstream, so layout matches). Its contact sheet is pixel-identical to upstream's.
+- Removing the "Pizza Hut" sign (fact 10) moves to Phase 2, because it changes output.
+
 **CHECKPOINT 1**: golden test green, module map in `docs/architecture.md`.
 
 ### Phase 2: engine upgrades (M to L). Output may change; re-record goldens once at the end.
@@ -163,6 +171,7 @@ Known limit: golden hashes hold for the engine that recorded them (Chromium/V8).
 7. **Worker.** Generate off the main thread; main thread only inserts markup.
 8. **Fix the NaN source** (fact 7) and add a test that output never contains `NaN`.
 9. Decide the noise licence question (isolate or replace).
+10. Remove the "Pizza Hut" sign from `arch02` (fact 10; deferred from Phase 1 because it changes output).
 
 Done when: upstream scene still renders (visually equivalent under the `ink` palette, reviewed on the contact sheet), order-independence test passes, memory is bounded, first screen appears without blocking the main thread.
 
