@@ -138,6 +138,8 @@ export function createCoast(seed) {
     dune: (x) => at(x).dune,
     segmentAt: segmentAt,
     segmentsIn: segmentsIn,
+    /** A random stream for a coast feature, e.g. rand("surf", segment.index). Same keys, same numbers. */
+    rand: (...keys) => stream(seed, ...keys),
     yh: YH,
     H: H,
   };

@@ -58,3 +58,13 @@ registerCoastLayer({
   name: "sea",
   draw: (r, i, ctx) => [{ y: r.y, list: swell(r.x0, r.x1, ctx.coast) }],
 });
+import { surf, swash } from "../../elements/sea.js";
+
+registerCoastLayer({
+  name: "surf",
+  draw: (r, i, ctx) => [{ y: r.y, list: surf(r.x0, r.x1, ctx.coast) }],
+});
+registerCoastLayer({
+  name: "swash",
+  draw: (r, i, ctx) => [{ y: r.y, list: swash(r.x0, r.x1, ctx.coast) }],
+});

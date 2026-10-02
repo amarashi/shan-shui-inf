@@ -6,6 +6,7 @@
 //   pnpm specimen --list
 //   pnpm specimen sea --guides            coast layer strips, with the coast model drawn in red
 //   pnpm specimen coast --layers sea,surf --count 4
+//   pnpm specimen waterline --count 1 --x 1200 --w 1000 --y 300   zoom into a bay
 //
 // Output: out/specimen-<name>.png
 import { mkdirSync } from "node:fs";
@@ -79,6 +80,8 @@ const { values, positionals } = parseArgs({
     layers: { type: "string" }, // comma-separated, overrides a coast entry's layers
     guides: { type: "boolean" }, // draw the coast model's horizon, shore and dune lines
     x: { type: "string", default: "0" }, // coast strips start here
+    w: { type: "string" }, // zoom: show this many world units across (default the whole view)
+    y: { type: "string", default: "0" }, // top of the zoomed view
     count: { type: "string", default: String(COUNT) },
   },
 });
@@ -160,11 +163,13 @@ if (ELEMENTS[name]) {
         `<polyline points="${line(c.shore)}" fill="none" stroke="rgba(255,0,0,0.6)" stroke-width="2"/>` +
         `<polyline points="${line(c.dune)}" fill="none" stroke="rgba(255,0,0,0.35)" stroke-width="2"/>`;
     }
+    const vw = values.w ? Number(values.w) : null;
+    const vb = vw ? `${x0} ${values.y} ${vw} ${(vw * WINDY) / WINDX}` : world.calcViewBox();
     const cx = (i % ncols) * cellW;
     const cy = Math.floor(i / ncols) * (cellH + labelH);
     svg +=
       `<text x="${cx + 6}" y="${cy + 17}" font-family="sans-serif" font-size="14" fill="#555">${seed}  layers: ${layers ? layers.join(", ") : "all"}</text>` +
-      `<svg x="${cx}" y="${cy + labelH}" width="${cellW}" height="${cellH}" viewBox="${world.calcViewBox()}" style="mix-blend-mode:multiply">` +
+      `<svg x="${cx}" y="${cy + labelH}" width="${cellW}" height="${cellH}" viewBox="${vb}" style="mix-blend-mode:multiply">` +
       world.MEM.canv +
       guides +
       `</svg>` +
