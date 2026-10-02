@@ -74,3 +74,20 @@ registerCoastLayer({
   name: "beach",
   draw: (r, i, ctx) => [{ y: r.y, list: beach(r.x0, r.x1, ctx.coast) }],
 });
+import { headland } from "../../elements/headland.js";
+
+// A headland is planned by the chunk that contains its centre.
+registerCoastLayer({
+  name: "headland",
+  plan: function (k, ctx) {
+    var out = [];
+    for (var seg of ctx.coast.segmentsIn(k * CHUNK - 1200, (k + 1) * CHUNK + 1200)) {
+      var xc = (seg.x0 + seg.x1) / 2;
+      if (seg.type === "headland" && xc >= k * CHUNK && xc < (k + 1) * CHUNK) {
+        out.push({ tag: "headland", x: xc, y: DEPTH.headland, seg: seg.index });
+      }
+    }
+    return out;
+  },
+  draw: (r, i, ctx) => [{ y: r.y, list: headland(ctx.coast.segmentAt(r.x), ctx.coast) }],
+});
