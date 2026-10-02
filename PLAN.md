@@ -179,6 +179,16 @@ Known limit: golden hashes hold for the engine that recorded them (Chromium/V8).
 
 Done when: upstream scene still renders (visually equivalent under the `ink` palette, reviewed on the contact sheet), order-independence test passes, memory is bounded, first screen appears without blocking the main thread.
 
+*As built (3 October 2026), all done:*
+
+- Order of work: steps 1, 2, 8 and 5 first, because they could be done with output byte for byte equal to upstream, so the upstream golden still guarded them. Output changes from step 3 on.
+- Step 4: chunks more than two chunk widths beyond the view are evicted; 200 scroll steps hold at most 20 chunks.
+- Step 5: `registerLayer({name, draw})`. Planning stays in `world/plan.js` for now; per-layer `plan()` hooks arrive with the coast layers in Phase 3.
+- Step 6: one `<g>` per drawn *part*, not per chunk, because paint order interleaves parts of different chunks. A cached scroll step fell from 142 ms (upstream) to about 11 ms.
+- Step 7: generation and the paper texture run in a module Web Worker; the page only inserts markup. Longest main-thread task while loading under 4x CPU throttling: 2.6 to 4.2 s upstream, 0.07 to 0.29 s now. Pages that use the worker need Vite (workers ignore import maps), so `pnpm dev` serves the compatibility page.
+- Goldens re-recorded once: `golden/engine.json` (`test/engine-golden.test.js`). `golden/upstream.json` remains the record of upstream itself.
+- Details in `docs/architecture.md` and `docs/decisions.md`.
+
 ### Phase 3: coastal composition (L). This is the core of the project.
 
 Coordinates: height H = 800. Smaller y is further away, as upstream.
