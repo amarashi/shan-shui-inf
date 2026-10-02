@@ -136,10 +136,9 @@ export function createWorld(opts = {}) {
   function chunkloader(xmin, xmax) {
     var add = function(nch) {
       // Each chunk keeps its display list and is rendered to markup once, here.
+      // Upstream replaced any "NaN" in the markup with -1000 here. No generator produces
+      // NaN (none in about 62,000 chunks from 490 worlds); test/no-nan.test.js guards it.
       nch.canv = toSVG(nch.list, palette);
-      if (nch.canv.includes("NaN")) {
-        nch.canv = nch.canv.replace(/NaN/g, -1000);
-      }
       if (MEM.chunks.length == 0) {
         MEM.chunks.push(nch);
         return;

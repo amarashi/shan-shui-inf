@@ -171,6 +171,7 @@ Known limit: golden hashes hold for the engine that recorded them (Chromium/V8).
 6. **Incremental DOM.** One `<g>` per chunk, inserted in depth order, added and removed as chunks enter and leave. Stop rebuilding the whole SVG on scroll.
 7. **Worker.** Generate off the main thread; main thread only inserts markup.
 8. **Fix the NaN source** (fact 7) and add a test that output never contains `NaN`.
+   *As built (done before step 3, while the golden still held):* no generator in this version produces NaN. A search of about 62,000 chunks from 490 worlds (timestamp seeds, word seeds, and scrolls to ±20,000) found none, so the patch was dead code and removing it changed no output. `test/no-nan.test.js` checks that every number in every display list is finite.
 9. Decide the noise licence question (isolate or replace).
 10. Remove the "Pizza Hut" sign from `arch02` (fact 10; deferred from Phase 1 because it changes output).
 
