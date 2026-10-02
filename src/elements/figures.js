@@ -4,6 +4,7 @@ import { div, stroke } from "../brush.js";
 import { bezmh, distance, normRand } from "../geom.js";
 import { Noise } from "../noise.js";
 import { poly } from "../render/displaylist.js";
+import { body, tone } from "../render/palette.js";
 
   export const Man = new function() {
     var expand = function(ptlist, wfun) {
@@ -113,7 +114,7 @@ import { poly } from "../render/displaylist.js";
             [-0.65, 0.5],
           ]),
         ),
-        { fil: "rgba(100,100,100,0.8)" },
+        { fil: tone("cloth", 0.8) },
       ));
 
       var qlist1 = [];
@@ -124,7 +125,7 @@ import { poly } from "../render/displaylist.js";
         ]);
       }
       canv.push(...poly(tranpoly(p0, p1, f(qlist1)), {
-        str: "rgba(100,100,100,0.8)",
+        str: tone("cloth", 0.8),
         wid: 1,
       }));
 
@@ -145,7 +146,7 @@ import { poly } from "../render/displaylist.js";
           };
       // canv += poly(tranpoly(p0,p1,[
       //   [-0.3,0.6],[-0.15,1.0],[0,1.1],[0.15,1.0],[0.3,0.6]
-      //   ]),{fil:"white",str:"rgba(130,130,130,0.8)",wid:1})
+      //   ]),{fil:body("cloth"),str:tone("cloth", 0.8, [130, 130, 130]),wid:1})
       canv.push(...poly(
         tranpoly(
           p0,
@@ -163,7 +164,7 @@ import { poly } from "../render/displaylist.js";
             [0.3, 0.5],
           ]),
         ),
-        { fil: "rgba(100,100,100,0.8)" },
+        { fil: tone("cloth", 0.8) },
       ));
       return canv;
     };
@@ -189,7 +190,7 @@ import { poly } from "../render/displaylist.js";
         ]);
       }
       canv.push(...poly(tranpoly(p0, p1, f(qlist1)), {
-        str: "rgba(100,100,100,0.5)",
+        str: tone("structure", 0.5),
         wid: 1,
       }));
 
@@ -293,15 +294,15 @@ import { poly } from "../render/displaylist.js";
         var tlist = bezmh(plist, 2);
         var [tlist1, tlist2] = expand(tlist, fun);
         canv.push(...poly(tlist1.concat(tlist2.reverse()).map(toGlobal), {
-          fil: "white",
+          fil: body("cloth"),
         }));
         canv.push(...stroke(tlist1.map(toGlobal), {
           wid: 1,
-          col: "rgba(100,100,100,0.5)",
+          col: tone("cloth", 0.5),
         }));
         canv.push(...stroke(tlist2.map(toGlobal), {
           wid: 1,
-          col: "rgba(100,100,100,0.6)",
+          col: tone("cloth", 0.6),
         }));
 
         return canv;
@@ -339,7 +340,7 @@ import { poly } from "../render/displaylist.js";
       hlist1.splice(0, Math.floor(hlist1.length * 0.1));
       hlist2.splice(0, Math.floor(hlist2.length * 0.95));
       canv.push(...poly(hlist1.concat(hlist2.reverse()).map(toGlobal), {
-        fil: "rgba(100,100,100,0.6)",
+        fil: tone("cloth", 0.6),
       }));
 
       canv.push(...hat(toGlobal(pts[1]), toGlobal(pts[2]), { fli: fli }));

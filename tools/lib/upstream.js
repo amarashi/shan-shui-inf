@@ -15,10 +15,11 @@ export function launch() {
  * @param {import("playwright").Browser} browser
  * @param {string} seed raw seed string, passed as `?seed=` exactly as upstream reads it
  * @param {string} [url] page URL; defaults to upstream/index.html
+ * @param {string} [query] extra query string, for example "palette=roles"
  */
-export async function openUpstream(browser, seed, url = UPSTREAM_URL) {
+export async function openUpstream(browser, seed, url = UPSTREAM_URL, query = "") {
   const page = await browser.newPage({ viewport: { width: 3200, height: 900 } });
-  await page.goto(`${url}?seed=${seed}`);
+  await page.goto(`${url}?seed=${seed}${query ? `&${query}` : ""}`);
   return page;
 }
 

@@ -2,6 +2,7 @@
 import { random } from "../rng.js";
 import { stroke } from "../brush.js";
 import { Noise } from "../noise.js";
+import { tone } from "../render/palette.js";
 
   export function water(xoff, yoff, seed, args) {
     var args = args != undefined ? args : {};
@@ -33,7 +34,7 @@ import { Noise } from "../noise.js";
         }),
         {
           col:
-            "rgba(100,100,100," + (0.3 + random() * 0.3).toFixed(3) + ")",
+            tone("water", (0.3 + random() * 0.3).toFixed(3)),
           wid: 1,
         },
       ));

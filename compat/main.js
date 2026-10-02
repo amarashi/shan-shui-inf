@@ -2,21 +2,25 @@
 // upstream exactly (seed, first update, presentation scroll, paper texture), because the
 // paper texture consumes random numbers that later chunks depend on.
 import { paperTexture } from "../src/paper.js";
+import { palettes } from "../src/render/palette.js";
 import { random, seed } from "../src/rng.js";
 import { createWorld } from "../src/world/upstream.js";
 
 // --- seed (upstream parseArgs: the raw text after "seed=", not URL-decoded) ---
+// Also ?palette=<name> (not in upstream): ink (default) or roles.
 var SEED = "" + new Date().getTime();
+var PALETTE = "ink";
 var par = window.location.href.split("?")[1];
 if (par != undefined) {
   par.split("&").forEach(function (kv) {
     var e = kv.split("=");
     if (e[0] == "seed") SEED = e[1] == "" ? SEED : e[1];
+    if (e[0] == "palette" && palettes[e[1]]) PALETTE = e[1];
   });
 }
 seed(SEED);
 
-const world = createWorld();
+const world = createWorld({ palette: palettes[PALETTE] });
 const MEM = world.MEM;
 
 // --- upstream update(), xcroll() and UI helpers ---

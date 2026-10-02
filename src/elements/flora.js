@@ -4,13 +4,14 @@ import { blob, div, stroke } from "../brush.js";
 import { distance, loopNoise, normRand, PolyTools, randChoice, randGaussian } from "../geom.js";
 import { Noise } from "../noise.js";
 import { poly } from "../render/displaylist.js";
+import { body, NONE, tone, withRole } from "../render/palette.js";
 
   export const Tree = new function() {
     this.tree01 = function(x, y, args) {
       var args = args != undefined ? args : {};
       var hei = args.hei != undefined ? args.hei : 50;
       var wid = args.wid != undefined ? args.wid : 3;
-      var col = args.col != undefined ? args.col : "rgba(100,100,100,0.5)";
+      var col = args.col != undefined ? args.col : tone("foliage", 0.5);
       var noi = args.noi != undefined ? args.noi : 0.5;
 
       var reso = 10;
@@ -19,15 +20,8 @@ import { poly } from "../render/displaylist.js";
         nslist.push([Noise.noise(i * 0.5), Noise.noise(i * 0.5, 0.5)]);
       }
 
-      var leafcol;
-      if (col.includes("rgba(")) {
-        leafcol = col
-          .replace("rgba(", "")
-          .replace(")", "")
-          .split(",");
-      } else {
-        leafcol = ["100", "100", "100", "0.5"];
-      }
+      // Upstream parsed an "rgba(r,g,b,a)" string here; colours are now structured.
+      var leafcol = col.a != null ? col.rgb.concat([col.a]) : [100, 100, 100, "0.5"];
       var canv = [];
       var line1 = [];
       var line2 = [];
@@ -44,15 +38,7 @@ import { poly } from "../render/displaylist.js";
                 wid: random() * 6 + 3,
                 ang: ((random() - 0.5) * Math.PI) / 6,
                 col:
-                  "rgba(" +
-                  leafcol[0] +
-                  "," +
-                  leafcol[1] +
-                  "," +
-                  leafcol[2] +
-                  "," +
-                  (random() * 0.2 + parseFloat(leafcol[3])).toFixed(1) +
-                  ")",
+                  tone("foliage", (random() * 0.2 + parseFloat(leafcol[3])).toFixed(1), leafcol.slice(0, 3)),
               },
             ));
           }
@@ -60,7 +46,7 @@ import { poly } from "../render/displaylist.js";
         line1.push([nx + (nslist[i][0] - 0.5) * wid - wid / 2, ny]);
         line2.push([nx + (nslist[i][1] - 0.5) * wid + wid / 2, ny]);
       }
-      canv.push(...poly(line1, { fil: "none", str: col, wid: 1.5 }), ...poly(line2, { fil: "none", str: col, wid: 1.5 }));
+      canv.push(...poly(line1, { fil: NONE, str: withRole(col, "trunk"), wid: 1.5 }), ...poly(line2, { fil: NONE, str: withRole(col, "trunk"), wid: 1.5 }));
       return canv;
     };
     this.tree02 = function(x, y, args) {
@@ -68,18 +54,8 @@ import { poly } from "../render/displaylist.js";
       var hei = args.hei != undefined ? args.hei : 16;
       var wid = args.wid != undefined ? args.wid : 8;
       var clu = args.clu != undefined ? args.clu : 5;
-      var col = args.col != undefined ? args.col : "rgba(100,100,100,0.5)";
+      var col = args.col != undefined ? args.col : tone("foliage", 0.5);
       var noi = args.noi != undefined ? args.noi : 0.5;
-
-      var leafcol;
-      if (col.includes("rgba(")) {
-        leafcol = col
-          .replace("rgba(", "")
-          .replace(")", "")
-          .split(",");
-      } else {
-        leafcol = ["100", "100", "100", "0.5"];
-      }
 
       var canv = [];
       for (var i = 0; i < clu; i++) {
@@ -88,7 +64,6 @@ import { poly } from "../render/displaylist.js";
           y + randGaussian() * clu * 4,
           {
             ang: Math.PI / 2,
-            col: "rgba(100,100,100,0.8)",
             fun: function(x) {
               return x <= 1
                 ? Math.pow(Math.sin(x * Math.PI) * x, 0.5)
@@ -112,7 +87,7 @@ import { poly } from "../render/displaylist.js";
           : function(x) {
               return 0;
             };
-      var col = args.col != undefined ? args.col : "rgba(100,100,100,0.5)";
+      var col = args.col != undefined ? args.col : tone("foliage", 0.5);
       var noi = args.noi != undefined ? args.noi : 0.5;
 
       var reso = 10;
@@ -121,15 +96,8 @@ import { poly } from "../render/displaylist.js";
         nslist.push([Noise.noise(i * 0.5), Noise.noise(i * 0.5, 0.5)]);
       }
 
-      var leafcol;
-      if (col.includes("rgba(")) {
-        leafcol = col
-          .replace("rgba(", "")
-          .replace(")", "")
-          .split(",");
-      } else {
-        leafcol = ["100", "100", "100", "0.5"];
-      }
+      // Upstream parsed an "rgba(r,g,b,a)" string here; colours are now structured.
+      var leafcol = col.a != null ? col.rgb.concat([col.a]) : [100, 100, 100, "0.5"];
       var canv = [];
       var blobs = [];
       var line1 = [];
@@ -151,15 +119,7 @@ import { poly } from "../render/displaylist.js";
                 wid: random() * 6 + 3,
                 ang: ((random() - 0.5) * Math.PI) / 6,
                 col:
-                  "rgba(" +
-                  leafcol[0] +
-                  "," +
-                  leafcol[1] +
-                  "," +
-                  leafcol[2] +
-                  "," +
-                  (random() * 0.2 + parseFloat(leafcol[3])).toFixed(3) +
-                  ")",
+                  tone("foliage", (random() * 0.2 + parseFloat(leafcol[3])).toFixed(3), leafcol.slice(0, 3)),
               },
             ));
           }
@@ -174,7 +134,7 @@ import { poly } from "../render/displaylist.js";
         ]);
       }
       var lc = line1.concat(line2.reverse());
-      canv.push(...poly(lc, { fil: "white", str: col, wid: 1.5 }));
+      canv.push(...poly(lc, { fil: body("trunk"), str: withRole(col, "trunk"), wid: 1.5 }));
       canv.push(...blobs);
       return canv;
     };
@@ -303,7 +263,7 @@ import { poly } from "../render/displaylist.js";
                 len: (15 + 12 * random()) * wid,
                 ang:
                   ang / 2 + Math.PI / 2 + Math.PI * 0.2 * (random() - 0.5),
-                col: "rgba(100,100,100," + (0.5 + dep * 0.2).toFixed(3) + ")",
+                col: tone("foliage", (0.5 + dep * 0.2).toFixed(3)),
                 fun: function(x) {
                   return x <= 1
                     ? Math.pow(Math.sin(x * Math.PI) * x, 0.5)
@@ -319,7 +279,7 @@ import { poly } from "../render/displaylist.js";
         fun: function(x) {
           return Math.cos((x * Math.PI) / 2);
         },
-        col: "rgba(100,100,100,0.5)",
+        col: tone("trunk", 0.5),
       }));
       return canv;
     };
@@ -363,7 +323,7 @@ import { poly } from "../render/displaylist.js";
         canv.push(...stroke(brklist, {
           wid: 0.8,
           noi: 0,
-          col: "rgba(100,100,100,0.4)",
+          col: tone("trunk", 0.4),
           out: 0,
           fun: function(x) {
             return Math.sin((x + fr) * Math.PI * 3);
@@ -392,7 +352,7 @@ import { poly } from "../render/displaylist.js";
             len: 15,
             wid: 6 - Math.abs(p - 0.5) * 10,
             ang: (a0 + a1) / 2,
-            col: "rgba(100,100,100,0.6)",
+            col: tone("trunk", 0.6),
           }));
         } else {
           canv.push(...bark(
@@ -417,7 +377,7 @@ import { poly } from "../render/displaylist.js";
                 wid: 4,
                 len: 4 + 6 * random(),
                 ang: a0 + Math.PI / 2,
-                col: "rgba(100,100,100,0.6)",
+                col: tone("trunk", 0.6),
               },
             ));
           }
@@ -445,7 +405,7 @@ import { poly } from "../render/displaylist.js";
           rglist[i].map(function(v) {
             return [v[0] + x, v[1] + y];
           }),
-          { wid: 1.5, col: "rgba(100,100,100,0.7)", out: 0 },
+          { wid: 1.5, col: tone("trunk", 0.7), out: 0 },
         ));
       }
       return canv;
@@ -455,7 +415,7 @@ import { poly } from "../render/displaylist.js";
       var args = args != undefined ? args : {};
       var hei = args.hei != undefined ? args.hei : 300;
       var wid = args.wid != undefined ? args.wid : 6;
-      var col = args.col != undefined ? args.col : "rgba(100,100,100,0.5)";
+      var col = args.col != undefined ? args.col : tone("trunk", 0.5);
       var noi = args.noi != undefined ? args.noi : 0.5;
 
       var canv = [];
@@ -514,7 +474,7 @@ import { poly } from "../render/displaylist.js";
           trmlist.push(trlist[i]);
         }
       }
-      canv.push(...poly(trmlist, { xof: x, yof: y, fil: "white", str: col, wid: 0 }));
+      canv.push(...poly(trmlist, { xof: x, yof: y, fil: body("trunk"), str: col, wid: 0 }));
 
       trmlist.splice(0, 1);
       trmlist.splice(trmlist.length - 1, 1);
@@ -524,7 +484,7 @@ import { poly } from "../render/displaylist.js";
         }),
         {
           col:
-            "rgba(100,100,100," + (0.4 + random() * 0.1).toFixed(3) + ")",
+            tone("trunk", (0.4 + random() * 0.1).toFixed(3)),
           wid: 2.5,
           fun: function(x) {
             return Math.sin(1);
@@ -543,7 +503,7 @@ import { poly } from "../render/displaylist.js";
       var args = args != undefined ? args : {};
       var hei = args.hei != undefined ? args.hei : 300;
       var wid = args.wid != undefined ? args.wid : 5;
-      var col = args.col != undefined ? args.col : "rgba(100,100,100,0.5)";
+      var col = args.col != undefined ? args.col : tone("trunk", 0.5);
       var noi = args.noi != undefined ? args.noi : 0.5;
 
       var canv = [];
@@ -609,7 +569,7 @@ import { poly } from "../render/displaylist.js";
         }
       }
 
-      canv.push(...poly(trmlist, { xof: x, yof: y, fil: "white", str: col, wid: 0 }));
+      canv.push(...poly(trmlist, { xof: x, yof: y, fil: body("trunk"), str: col, wid: 0 }));
 
       trmlist.splice(0, 1);
       trmlist.splice(trmlist.length - 1, 1);
@@ -619,7 +579,7 @@ import { poly } from "../render/displaylist.js";
         }),
         {
           col:
-            "rgba(100,100,100," + (0.4 + random() * 0.1).toFixed(3) + ")",
+            tone("trunk", (0.4 + random() * 0.1).toFixed(3)),
           wid: 2.5,
           fun: function(x) {
             return Math.sin(1);
@@ -638,7 +598,7 @@ import { poly } from "../render/displaylist.js";
       var args = args != undefined ? args : {};
       var hei = args.hei != undefined ? args.hei : 100;
       var wid = args.wid != undefined ? args.wid : 6;
-      var col = args.col != undefined ? args.col : "rgba(100,100,100,0.5)";
+      var col = args.col != undefined ? args.col : tone("trunk", 0.5);
       var noi = args.noi != undefined ? args.noi : 0.5;
 
       var canv = [];
@@ -725,7 +685,7 @@ import { poly } from "../render/displaylist.js";
         ben: 0,
       });
 
-      canv.push(...poly(trmlist, { xof: x, yof: y, fil: "white", str: col, wid: 0 }));
+      canv.push(...poly(trmlist, { xof: x, yof: y, fil: body("trunk"), str: col, wid: 0 }));
 
       trmlist.splice(0, 1);
       trmlist.splice(trmlist.length - 1, 1);
@@ -735,7 +695,7 @@ import { poly } from "../render/displaylist.js";
         }),
         {
           col:
-            "rgba(100,100,100," + (0.4 + random() * 0.1).toFixed(3) + ")",
+            tone("trunk", (0.4 + random() * 0.1).toFixed(3)),
           wid: 2.5,
           fun: function(x) {
             return Math.sin(1);
@@ -760,7 +720,7 @@ import { poly } from "../render/displaylist.js";
           : function(x) {
               return Math.sqrt(x) * 0.2;
             };
-      var col = args.col != undefined ? args.col : "rgba(100,100,100,1)";
+      var col = args.col != undefined ? args.col : tone("foliage", 1);
       var noi = args.noi != undefined ? args.noi : 0.5;
 
       var reso = 10;
@@ -768,15 +728,8 @@ import { poly } from "../render/displaylist.js";
       for (var i = 0; i < reso; i++) {
         nslist.push([Noise.noise(i * 0.5), Noise.noise(i * 0.5, 0.5)]);
       }
-      var leafcol;
-      if (col.includes("rgba(")) {
-        leafcol = col
-          .replace("rgba(", "")
-          .replace(")", "")
-          .split(",");
-      } else {
-        leafcol = ["100", "100", "100", "1"];
-      }
+      // Upstream parsed an "rgba(r,g,b,a)" string here; colours are now structured.
+      var leafcol = col.a != null ? col.rgb.concat([col.a]) : [100, 100, 100, "1"];
       var canv = [];
       var line1 = [];
       var line2 = [];
@@ -794,15 +747,7 @@ import { poly } from "../render/displaylist.js";
                 wid: random() * 12 + 12,
                 ang: (-random() * Math.PI) / 6,
                 col:
-                  "rgba(" +
-                  leafcol[0] +
-                  "," +
-                  leafcol[1] +
-                  "," +
-                  leafcol[2] +
-                  "," +
-                  parseFloat(leafcol[3]).toFixed(3) +
-                  ")",
+                  tone("foliage", parseFloat(leafcol[3]).toFixed(3), leafcol.slice(0, 3)),
                 fun: function(x) {
                   return x <= 1
                     ? 2.75 * x * Math.pow(1 - x, 1 / 1.8)
@@ -836,7 +781,7 @@ import { poly } from "../render/displaylist.js";
       for (var k = 0; k < T.length; k++) {
         var m = PolyTools.midPt(T[k]);
         var c = (Noise.noise(m[0] * 0.02, m[1] * 0.02) * 200 + 50) | 0;
-        var co = "rgba(" + c + "," + c + "," + c + ",0.8)";
+        var co = tone("foliage", 0.8, [c, c, c]);
         canv.push(...poly(T[k], { fil: co, str: co, wid: 0 }));
       }
       return canv;
@@ -846,7 +791,7 @@ import { poly } from "../render/displaylist.js";
       var args = args != undefined ? args : {};
       var hei = args.hei != undefined ? args.hei : 80;
       var wid = args.wid != undefined ? args.wid : 1;
-      var col = args.col != undefined ? args.col : "rgba(100,100,100,0.5)";
+      var col = args.col != undefined ? args.col : tone("trunk", 0.5);
       var noi = args.noi != undefined ? args.noi : 0.5;
 
       var canv = [];
@@ -910,7 +855,7 @@ import { poly } from "../render/displaylist.js";
         tcanv.push(...stroke(trmlist, {
           fun: fun,
           wid: 0.8,
-          col: "rgba(100,100,100,0.5)",
+          col: tone("trunk", 0.5),
         }));
         if (dep != 0) {
           var nben = ben + randChoice([-1, 1]) * Math.PI * 0.001 * dep * dep;
@@ -962,7 +907,7 @@ import { poly } from "../render/displaylist.js";
         }
       }
 
-      canv.push(...poly(trlist, { xof: x, yof: y, fil: "white", str: col, wid: 0 }));
+      canv.push(...poly(trlist, { xof: x, yof: y, fil: body("trunk"), str: col, wid: 0 }));
 
       canv.push(...stroke(
         trlist.map(function(v) {
@@ -970,7 +915,7 @@ import { poly } from "../render/displaylist.js";
         }),
         {
           col:
-            "rgba(100,100,100," + (0.6 + random() * 0.1).toFixed(3) + ")",
+            tone("trunk", (0.6 + random() * 0.1).toFixed(3)),
           wid: 2.5,
           fun: function(x) {
             return Math.sin(1);

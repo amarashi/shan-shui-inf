@@ -4,6 +4,7 @@ import { div, stroke, texture } from "../brush.js";
 import { loopNoise, normRand, PolyTools, randChoice } from "../geom.js";
 import { Noise } from "../noise.js";
 import { poly } from "../render/displaylist.js";
+import { body, NONE, tone } from "../render/palette.js";
 import { Tree } from "./flora.js";
 import { Arch } from "./structures.js";
 
@@ -63,8 +64,8 @@ import { Arch } from "./structures.js";
         canv.push(...poly(ftlist[i], {
           xof: xof,
           yof: yof,
-          fil: "white",
-          str: "none",
+          fil: body("rock"),
+          str: NONE,
         }));
       }
       for (var j = 0; j < ftlist.length; j++) {
@@ -74,9 +75,7 @@ import { Arch } from "./structures.js";
           }),
           {
             col:
-              "rgba(100,100,100," +
-              (0.1 + random() * 0.1).toFixed(3) +
-              ")",
+              tone("rock", (0.1 + random() * 0.1).toFixed(3)),
             wid: 1,
           },
         ));
@@ -138,9 +137,7 @@ import { Arch } from "./structures.js";
         function(x, y) {
           return Tree.tree02(x + xoff, y + yoff - 5, {
             col:
-              "rgba(100,100,100," +
-              (Noise.noise(0.01 * x, 0.01 * y) * 0.5 * 0.3 + 0.5).toFixed(3) +
-              ")",
+              tone("foliage", (Noise.noise(0.01 * x, 0.01 * y) * 0.5 * 0.3 + 0.5).toFixed(3)),
             clu: 2,
           });
         },
@@ -159,15 +156,15 @@ import { Arch } from "./structures.js";
       canv.push(...poly(ptlist[0].concat([[0, reso[0] * 4]]), {
         xof: xoff,
         yof: yoff,
-        fil: "white",
-        str: "none",
+        fil: body("rock"),
+        str: NONE,
       }));
       //OUTLINE
       canv.push(...stroke(
         ptlist[0].map(function(x) {
           return [x[0] + xoff, x[1] + yoff];
         }),
-        { col: "rgba(100,100,100,0.3)", noi: 1, wid: 3 },
+        { col: tone("rock", 0.3), noi: 1, wid: 3 },
       ));
 
       canv.push(...foot(ptlist, { xof: xoff, yof: yoff }));
@@ -184,9 +181,7 @@ import { Arch } from "./structures.js";
         function(x, y) {
           return Tree.tree02(x + xoff, y + yoff, {
             col:
-              "rgba(100,100,100," +
-              (Noise.noise(0.01 * x, 0.01 * y) * 0.5 * 0.3 + 0.5).toFixed(3) +
-              ")",
+              tone("foliage", (Noise.noise(0.01 * x, 0.01 * y) * 0.5 * 0.3 + 0.5).toFixed(3)),
           });
         },
         function(i, j) {
@@ -208,9 +203,7 @@ import { Arch } from "./structures.js";
               hei: ht,
               wid: random() * 3 + 1,
               col:
-                "rgba(100,100,100," +
-                (Noise.noise(0.01 * x, 0.01 * y) * 0.5 * 0.3 + 0.3).toFixed(3) +
-                ")",
+                tone("foliage", (Noise.noise(0.01 * x, 0.01 * y) * 0.5 * 0.3 + 0.3).toFixed(3)),
             });
           },
           function(i, j) {
@@ -253,9 +246,7 @@ import { Arch } from "./structures.js";
                 return Math.pow(x * bc, bp);
               },
               col:
-                "rgba(100,100,100," +
-                (Noise.noise(0.01 * x, 0.01 * y) * 0.5 * 0.3 + 0.3).toFixed(3) +
-                ")",
+                tone("foliage", (Noise.noise(0.01 * x, 0.01 * y) * 0.5 * 0.3 + 0.3).toFixed(3)),
             });
           },
           function(i, j) {
@@ -411,15 +402,15 @@ import { Arch } from "./structures.js";
       canv.push(...poly(ptlist[0].concat([[0, reso[0] * 4]]), {
         xof: xoff,
         yof: yoff,
-        fil: "white",
-        str: "none",
+        fil: body("rock"),
+        str: NONE,
       }));
       //OUTLINE
       canv.push(...stroke(
         ptlist[0].map(function(x) {
           return [x[0] + xoff, x[1] + yoff];
         }),
-        { col: "rgba(100,100,100,0.3)", noi: 1, wid: 3 },
+        { col: tone("rock", 0.3), noi: 1, wid: 3 },
       ));
 
       //canv += foot(ptlist,{xof:xoff,yof:yoff})
@@ -472,19 +463,19 @@ import { Arch } from "./structures.js";
         grlist[i][0] *= 1 - v + Noise.noise(grlist[i][1] * 0.5) * v;
       }
       /*       for (var i = 0; i < ptlist.length; i++){
-        canv += poly(ptlist[i],{xof:xoff,yof:yoff,str:"red",fil:"none",wid:2})
+        canv += poly(ptlist[i],{xof:xoff,yof:yoff,str:"red",fil:NONE,wid:2})
       }
  */
       canv.push(...poly(grlist, {
         xof: xoff,
         yof: yoff,
-        str: "none",
-        fil: "white",
+        str: NONE,
+        fil: body("rock"),
         wid: 2,
       }));
       canv.push(...stroke(grlist.map(x => [x[0] + xoff, x[1] + yoff]), {
         wid: 3,
-        col: "rgba(100,100,100,0.2)",
+        col: tone("rock", 0.2),
       }));
 
       var bound = function(plist) {
@@ -691,11 +682,11 @@ import { Arch } from "./structures.js";
       for (var i = 0; i < ptlist.length; i++) {
         var getCol = function(x, y) {
           var c = (Noise.noise(x * 0.02, y * 0.02, yoff) * 55 + 200) | 0;
-          return "rgb(" + c + "," + c + "," + c + ")";
+          return tone("rock", null, [c, c, c]);
         };
         canv.push(...poly(ptlist[i], {
           fil: getCol(...ptlist[i][ptlist[i].length - 1]),
-          str: "none",
+          str: NONE,
           wid: 1,
         }));
 
@@ -768,15 +759,15 @@ import { Arch } from "./structures.js";
       canv.push(...poly(ptlist[0].concat([[0, 0]]), {
         xof: xoff,
         yof: yoff,
-        fil: "white",
-        str: "none",
+        fil: body("rock"),
+        str: NONE,
       }));
       //OUTLINE
       canv.push(...stroke(
         ptlist[0].map(function(x) {
           return [x[0] + xoff, x[1] + yoff];
         }),
-        { col: "rgba(100,100,100,0.3)", noi: 1, wid: 3 },
+        { col: tone("rock", 0.3), noi: 1, wid: 3 },
       ));
       canv.push(...texture(ptlist, {
         xof: xoff,
@@ -786,7 +777,7 @@ import { Arch } from "./structures.js";
         sha: sha,
         col: function(x) {
           return (
-            "rgba(180,180,180," + (0.3 + random() * 0.3).toFixed(3) + ")"
+            tone("rock", (0.3 + random() * 0.3).toFixed(3), [180, 180, 180])
           );
         },
         dis: function() {
@@ -799,7 +790,7 @@ import { Arch } from "./structures.js";
       }));
 
       for (var i = 0; i < reso[0]; i++) {
-        //canv += poly(ptlist[i],{xof:xoff,yof:yoff,fil:"none",str:"red",wid:2})
+        //canv += poly(ptlist[i],{xof:xoff,yof:yoff,fil:NONE,str:"red",wid:2})
       }
       return canv;
     };

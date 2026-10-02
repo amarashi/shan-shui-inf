@@ -4,6 +4,7 @@ import { div, stroke, texture } from "../brush.js";
 import { normRand, PolyTools, randChoice, wtrand } from "../geom.js";
 import { Noise } from "../noise.js";
 import { poly, text } from "../render/displaylist.js";
+import { body, NONE, tone } from "../render/palette.js";
 import { Man } from "./figures.js";
 
   export const Arch = new function() {
@@ -47,20 +48,20 @@ import { Man } from "./figures.js";
         ptlist[0]
           .slice(0, -1)
           .concat(ptlist[ptlist.length - 1].slice(0, -1).reverse()),
-        { xof: xoff, yof: yoff, fil: "white", str: "none" },
+        { xof: xoff, yof: yoff, fil: body("structure"), str: NONE },
       ));
       canv.push(...poly(ptlist[0], {
         xof: xoff,
         yof: yoff,
-        fil: "none",
-        str: "rgba(100,100,100,0.3)",
+        fil: NONE,
+        str: tone("structure", 0.3),
         wid: 2,
       }));
       canv.push(...poly(ptlist[ptlist.length - 1], {
         xof: xoff,
         yof: yoff,
-        fil: "none",
-        str: "rgba(100,100,100,0.3)",
+        fil: NONE,
+        str: tone("structure", 0.3),
         wid: 2,
       }));
 
@@ -68,11 +69,12 @@ import { Man } from "./figures.js";
         xof: xoff,
         yof: yoff,
         tex: tex,
+        role: "structure",
         wid: 1,
         len: 0.25,
         col: function(x) {
           return (
-            "rgba(120,120,120," + (0.3 + random() * 0.3).toFixed(3) + ")"
+            tone("structure", (0.3 + random() * 0.3).toFixed(3), [120, 120, 120])
           );
         },
         dis: function() {
@@ -84,7 +86,7 @@ import { Man } from "./figures.js";
       }));
 
       for (var i = 0; i < reso[0]; i++) {
-        //canv += poly(ptlist[i],{xof:xoff,yof:yoff,fil:"none",str:"red",wid:2})
+        //canv += poly(ptlist[i],{xof:xoff,yof:yoff,fil:NONE,str:"red",wid:2})
       }
 
       return canv;
@@ -147,8 +149,8 @@ import { Man } from "./figures.js";
         canv.push(...poly(polist, {
           xof: xoff,
           yof: yoff,
-          str: "none",
-          fil: "white",
+          str: NONE,
+          fil: body("structure"),
         }));
       }
 
@@ -158,7 +160,7 @@ import { Man } from "./figures.js";
             return [x[0] + xoff, x[1] + yoff];
           }),
           {
-            col: "rgba(100,100,100,0.4)",
+            col: tone("structure", 0.4),
             noi: 1,
             wid: wei,
             fun: function(x) {
@@ -296,8 +298,8 @@ import { Man } from "./figures.js";
           canv.push(...poly(ln, {
             xof: xoff,
             yof: yoff,
-            fil: "none",
-            str: "rgba(100,100,100,0.5)",
+            fil: NONE,
+            str: tone("structure", 0.5),
             wid: 2,
           }));
         }
@@ -309,7 +311,7 @@ import { Man } from "./figures.js";
             return [x[0] + xoff, x[1] + yoff];
           }),
           {
-            col: "rgba(100,100,100,0.5)",
+            col: tone("structure", 0.5),
             noi: 0.5,
             wid: wei,
             fun: function(x) {
@@ -392,7 +394,7 @@ import { Man } from "./figures.js";
         [wid * 0.5, 0],
         [mid, per],
       ]);
-      canv.push(...poly(polist, { xof: xoff, yof: yoff, str: "none", fil: "white" }));
+      canv.push(...poly(polist, { xof: xoff, yof: yoff, str: NONE, fil: body("structure") }));
 
       for (var i = 0; i < ptlist.length; i++) {
         canv.push(...stroke(
@@ -400,7 +402,7 @@ import { Man } from "./figures.js";
             return [x[0] + xoff, x[1] + yoff];
           }),
           {
-            col: "rgba(100,100,100,0.4)",
+            col: tone("structure", 0.4),
             noi: 1,
             wid: wei,
             fun: function(x) {
@@ -426,7 +428,7 @@ import { Man } from "./figures.js";
             size: hei * 0.6,
             rot: adeg,
             text: pla[1],
-            fill: "rgba(100,100,100,0.9)",
+            fill: tone("structure", 0.9),
           }),
         );
       }
@@ -457,14 +459,14 @@ import { Man } from "./figures.js";
         polist.push([fxx, fy]);
       }
 
-      canv.push(...poly(polist, { xof: xoff, yof: yoff, str: "none", fil: "white" }));
+      canv.push(...poly(polist, { xof: xoff, yof: yoff, str: NONE, fil: body("structure") }));
       for (var i = 0; i < ptlist.length; i++) {
         canv.push(...stroke(
           div(ptlist[i], 5).map(function(x) {
             return [x[0] + xoff, x[1] + yoff];
           }),
           {
-            col: "rgba(100,100,100,0.4)",
+            col: tone("structure", 0.4),
             noi: 1,
             wid: wei,
             fun: function(x) {
@@ -713,13 +715,13 @@ import { Man } from "./figures.js";
         plist2.push([i * dir, fun2(i / len)]);
       }
       var plist = plist1.concat(plist2.reverse());
-      canv.push(...poly(plist, { xof: xoff, yof: yoff, fil: "white" }));
+      canv.push(...poly(plist, { xof: xoff, yof: yoff, fil: body("structure") }));
       canv.push(...stroke(plist.map(v => [xoff + v[0], yoff + v[1]]), {
         wid: 1,
         fun: function(x) {
           return Math.sin(x * Math.PI * 2);
         },
-        col: "rgba(100,100,100,0.4)",
+        col: tone("structure", 0.4),
       }));
 
       return canv;
@@ -739,7 +741,7 @@ import { Man } from "./figures.js";
         return stroke(div(pl, 5).map(toGlobal), {
           wid: 1,
           fun: x => 0.5,
-          col: "rgba(100,100,100,0.4)",
+          col: tone("structure", 0.4),
         });
       };
 

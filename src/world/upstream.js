@@ -6,9 +6,12 @@ import { water } from "../elements/sea.js";
 import { Mount } from "../elements/terrain.js";
 import { randChoice } from "../geom.js";
 import { Noise } from "../noise.js";
+import { ink } from "../render/palette.js";
 import { toSVG } from "../render/svg.js";
 
-export function createWorld() {
+/** @param {{palette?: {paint: Function}}} [opts] palette defaults to ink (the upstream look) */
+export function createWorld(opts = {}) {
+  var palette = opts.palette || ink;
   var MEM = {
     canv: "",
     chunks: [],
@@ -133,7 +136,7 @@ export function createWorld() {
   function chunkloader(xmin, xmax) {
     var add = function(nch) {
       // Each chunk keeps its display list and is rendered to markup once, here.
-      nch.canv = toSVG(nch.list);
+      nch.canv = toSVG(nch.list, palette);
       if (nch.canv.includes("NaN")) {
         nch.canv = nch.canv.replace(/NaN/g, -1000);
       }

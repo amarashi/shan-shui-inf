@@ -3,13 +3,14 @@ import { random } from "./rng.js";
 import { loopNoise } from "./geom.js";
 import { Noise } from "./noise.js";
 import { poly } from "./render/displaylist.js";
+import { tone } from "./render/palette.js";
 
   export function stroke(ptlist, args) {
     var args = args != undefined ? args : {};
     var xof = args.xof != undefined ? args.xof : 0;
     var yof = args.yof != undefined ? args.yof : 0;
     var wid = args.wid != undefined ? args.wid : 2;
-    var col = args.col != undefined ? args.col : "rgba(200,200,200,0.9)";
+    var col = args.col != undefined ? args.col : tone("ink", 0.9, [200, 200, 200]);
     var noi = args.noi != undefined ? args.noi : 0.5;
     var out = args.out != undefined ? args.out : 1;
     var fun =
@@ -71,7 +72,7 @@ import { poly } from "./render/displaylist.js";
     var len = args.len != undefined ? args.len : 20;
     var wid = args.wid != undefined ? args.wid : 5;
     var ang = args.ang != undefined ? args.ang : 0;
-    var col = args.col != undefined ? args.col : "rgba(200,200,200,0.9)";
+    var col = args.col != undefined ? args.col : tone("ink", 0.9, [200, 200, 200]);
     var noi = args.noi != undefined ? args.noi : 0.5;
     var ret = args.ret != undefined ? args.ret : 0;
     var fun =
@@ -149,6 +150,8 @@ import { poly } from "./render/displaylist.js";
     var wid = args.wid != undefined ? args.wid : 1.5;
     var len = args.len != undefined ? args.len : 0.2;
     var sha = args.sha != undefined ? args.sha : 0;
+    // Role of the surface being textured; used for the default colour and the shading.
+    var role = args.role != undefined ? args.role : "rock";
     var ret = args.ret != undefined ? args.ret : 0;
     var noi =
       args.noi != undefined
@@ -160,7 +163,7 @@ import { poly } from "./render/displaylist.js";
       args.col != undefined
         ? args.col
         : function(x) {
-            return "rgba(100,100,100," + (random() * 0.3).toFixed(3) + ")";
+            return tone(role, (random() * 0.3).toFixed(3));
           };
     var dis =
       args.dis != undefined
@@ -215,7 +218,7 @@ import { poly } from "./render/displaylist.js";
           texlist[j].map(function(x) {
             return [x[0] + xof, x[1] + yof];
           }),
-          { col: "rgba(100,100,100,0.1)", wid: sha },
+          { col: tone(role, 0.1), wid: sha },
         ));
       }
     }

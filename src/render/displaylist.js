@@ -4,14 +4,18 @@
 //   { type: "poly", pts: [[x, y], ...], fill, stroke, width }
 //   { type: "text", x, y, size, rot, text, fill }
 //
+// fill and stroke are colours from render/palette.js (tone, body, NONE, CLEAR), each with
+// its own role, because a shape's body and its outline are often different things.
+//
 // Upstream drew everything through poly(), which returned a <polyline> string. This poly()
 // takes the same arguments and returns a one-record list instead.
+import { CLEAR } from "./palette.js";
 
 export function poly(plist, args) {
   var args = args != undefined ? args : {};
   var xof = args.xof != undefined ? args.xof : 0;
   var yof = args.yof != undefined ? args.yof : 0;
-  var fil = args.fil != undefined ? args.fil : "rgba(0,0,0,0)";
+  var fil = args.fil != undefined ? args.fil : CLEAR;
   var str = args.str != undefined ? args.str : fil;
   var wid = args.wid != undefined ? args.wid : 0;
 
