@@ -2,8 +2,8 @@
 // `dummyloader`. Each cell reseeds the generator with "<name>:<i>", so a cell can be
 // reproduced on its own.
 //
-//   pnpm specimen -- tree04
-//   pnpm specimen -- --list
+//   pnpm specimen tree04
+//   pnpm specimen --list
 //
 // Output: out/specimen-<name>.png
 import { mkdirSync } from "node:fs";
@@ -57,7 +57,7 @@ const { values, positionals } = parseArgs({
 const name = positionals[0];
 if (values.list || !name) {
   console.log(`elements: ${Object.keys(ELEMENTS).join(", ")}`);
-  process.exit(name ? 0 : 2);
+  process.exit(values.list ? 0 : 2);
 }
 const el = ELEMENTS[name];
 if (!el) {

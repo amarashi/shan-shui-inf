@@ -4,7 +4,7 @@
 // Node runs a different V8 than Chromium, and the one full-precision number upstream prints
 // (a sign's rotate()) can differ in the last bit, so this test compares normalised hashes
 // (tools/lib/normalise.js). Byte-for-byte equality is checked in Chromium by
-// `pnpm golden:check -- --source modules`.
+// `pnpm golden:check --source modules`.
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { describe, expect, test } from "vitest";

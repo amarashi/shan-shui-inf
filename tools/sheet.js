@@ -1,27 +1,21 @@
 // Contact sheet: render 8 fixed seeds and tile them into one PNG for review.
 //
 //   pnpm sheet                      upstream page, first screen
-//   pnpm sheet -- --x 2000          scroll 2000 world units right first
-//   pnpm sheet -- --source upstream
+//   pnpm sheet --x 2000             scroll 2000 world units right first
+//   pnpm sheet --source modules     the compatibility page (index.html on src/)
 //
 // Output: out/sheet-<source>.png
 import { mkdirSync, writeFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { tile } from "./lib/sheet.js";
+import { startServer } from "./lib/server.js";
 import { launch, openUpstream, screenshot, xcroll } from "./lib/upstream.js";
 
 export const SHEET_SEEDS = ["1", "2", "3", "42", "coast", "sydney", "headland", "1234567890123"];
 
-// Each source turns (browser, seed, x) into a PNG. Phase 1 adds the module build here.
-const SOURCES = {
-  async upstream(browser, seed, x) {
-    const page = await openUpstream(browser, seed);
-    if (x) await xcroll(page, x);
-    const png = await screenshot(page);
-    await page.close();
-    return png;
-  },
-};
+// Each source is a page that draws the upstream scene and exposes upstream's xcroll:
+// upstream/index.html from disk, or the compatibility page (index.html on src/) via Vite.
+const SOURCES = ["upstream", "modules"];
 
 const { values } = parseArgs({
   options: {
@@ -30,21 +24,26 @@ const { values } = parseArgs({
     out: { type: "string" },
   },
 });
-const render = SOURCES[values.source];
-if (!render) {
-  console.error(`unknown source "${values.source}"; available: ${Object.keys(SOURCES).join(", ")}`);
+if (!SOURCES.includes(values.source)) {
+  console.error(`unknown source "${values.source}"; available: ${SOURCES.join(", ")}`);
   process.exit(2);
 }
 const x = Number(values.x);
 
+const server = values.source === "modules" ? await startServer() : null;
+const url = server ? `${server.url}index.html` : undefined;
 const browser = await launch();
 const cells = [];
 for (const seed of SHEET_SEEDS) {
   const t = Date.now();
-  cells.push({ png: await render(browser, seed, x), label: `seed ${seed}` });
+  const page = await openUpstream(browser, seed, url);
+  if (x) await xcroll(page, x);
+  cells.push({ png: await screenshot(page), label: `seed ${seed}` });
+  await page.close();
   console.log(`${seed.padEnd(14)} ${Date.now() - t} ms`);
 }
 await browser.close();
+await server?.close();
 
 const sheet = await tile(cells, {
   cols: 2,
