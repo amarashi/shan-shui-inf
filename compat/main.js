@@ -1,10 +1,11 @@
-// Upstream's page scripts, rebuilt on the modules in src/. The order of work matches
-// upstream exactly (seed, first update, presentation scroll, paper texture), because the
-// paper texture consumes random numbers that later chunks depend on.
+// Upstream's page scripts and UI, on the new engine in src/. Until Phase 2 step 3 this page
+// reproduced upstream byte for byte; since then each chunk has its own random streams, so
+// the same seed gives a different (but scroll-order independent) world from upstream's.
+import { withNoise } from "../src/noise.js";
 import { paperTexture } from "../src/paper.js";
 import { palettes } from "../src/render/palette.js";
-import { random, seed } from "../src/rng.js";
-import { createWorld } from "../src/world/upstream.js";
+import { stream, withRandom } from "../src/rng.js";
+import { createWorld } from "../src/world/chunks.js";
 
 // --- seed (upstream parseArgs: the raw text after "seed=", not URL-decoded) ---
 // Also ?palette=<name> (not in upstream): ink (default) or roles.
@@ -18,9 +19,7 @@ if (par != undefined) {
     if (e[0] == "palette" && palettes[e[1]]) PALETTE = e[1];
   });
 }
-seed(SEED);
-
-const world = createWorld({ palette: palettes[PALETTE] });
+const world = createWorld({ seed: SEED, palette: palettes[PALETTE] });
 const MEM = world.MEM;
 
 // --- upstream update(), xcroll() and UI helpers ---
@@ -99,9 +98,7 @@ function downloadSvg() {
     "href",
     "data:text/plain;charset=utf-8," + encodeURIComponent(document.getElementById("BG").innerHTML),
   );
-  // Upstream named the file with Math.random(), which it had replaced with the seeded
-  // generator, so a download consumed one random number. random() keeps that behaviour.
-  element.setAttribute("download", "" + random() + ".svg");
+  element.setAttribute("download", "shanshui-" + SEED + ".svg");
   element.style.display = "none";
   document.body.appendChild(element);
   element.click();
@@ -141,9 +138,13 @@ present();
 
 // --- paper texture (upstream's last script) ---
 var ctx = document.getElementById("bgcanv").getContext("2d");
-paperTexture(function (style, x, y) {
-  ctx.fillStyle = style;
-  ctx.fillRect(x, y, 1, 1);
+withNoise(world.noise, function () {
+  withRandom(stream(SEED, "paper"), function () {
+    paperTexture(function (style, x, y) {
+      ctx.fillStyle = style;
+      ctx.fillRect(x, y, 1, 1);
+    });
+  });
 });
 var img = document.getElementById("bgcanv").toDataURL("image/png");
 document.getElementById("BG").style.backgroundImage = "url(" + img + ")";

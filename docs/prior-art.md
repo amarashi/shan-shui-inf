@@ -18,3 +18,14 @@ Still to do before Phase 3: search for coastal or non-Chinese adaptations (proce
 
 - **Golden master, contact sheet, specimen sheet.** These are thin scripts around established packages: Playwright drives the page, the browser's Web Crypto computes SHA-256, and sharp scales and tiles images. No dedicated contact-sheet package was worth a dependency; tiling is one `sharp().composite()` call.
 - **Specimen sheet** follows upstream's own `dummyloader` (one element repeated along x). Ours reseeds per cell and draws each cell in a nested `<svg>` with its own viewBox, so small items are zoomed and large ones are clipped.
+
+## Phase 2: generator and noise (searched 3 October 2026)
+
+| Package | Licence | Weekly downloads | Decision |
+|---------|---------|-----------------:|----------|
+| pure-rand 8.4.2 | MIT | about 98 million | **Used**: seedable xoroshiro128+, float distribution, ES modules. |
+| seedrandom 3.0.5 | MIT | about 11 million | Not used: last release 2022, larger, and it has an option that replaces `Math.random`. |
+| alea 1.0.1 | MIT | small | Not used: unmaintained since 2022. |
+| simplex-noise 4.0.3 | MIT | about 425,000 | **Used**: 2D/3D/4D simplex, accepts a seeded generator, ES modules. |
+| open-simplex-noise 3.0.0 | Unlicense | small | Not used: less established; simplex-noise is enough. |
+| fast-simplex-noise 4.0.0 | Unlicense | small | Not used: unmaintained since 2022. |

@@ -22,3 +22,15 @@ No runtime dependencies so far.
 - **The compatibility page has no doctype, like upstream.** With a doctype the browser uses standards mode, where an inline `<svg>` gets descender space and `#BG` grows by a few pixels; screenshots then no longer line up with upstream's.
 - **Golden comparisons in Node use normalised hashes.** Node 24 (V8 13.6) and Chromium 151 differ in the last bit of one full-precision number upstream prints (a sign's `rotate()` for seed `1234567890123`). `pnpm golden:check --source modules` compares the module build byte for byte in the same Chromium that recorded the golden master.
 - **Colour roles live on colours, and white fills are `body(role)` (Phase 2 step 2).** A record's fill and stroke often play different parts, so each carries its own role. Upstream's white occlusion fills become the body of a material rather than a generic `occlude` role, so Phase 5 can wash each body in its own tint. `NONE` is an object, not `null`, because upstream's argument defaults treat `null` as "not given".
+
+## Phase 2 step 3: chunk-local randomness, new generator and noise
+
+| Package | Version | Kind | Why |
+|---------|---------|------|-----|
+| pure-rand | 8.4.2 | runtime | Seeded generator (`xoroshiro128plus`) and `uniformFloat64`. One stream per (seed, layer, chunk), so chunks generate in any order. MIT, maintained, tiny when tree-shaken. Replaces upstream's `Prng` (`s * s mod pq` in floating point, which loses precision above 2^53). |
+| simplex-noise | 4.0.3 | runtime | Replaces upstream's p5.js noise, which is LGPL 2.1. MIT, takes our seeded generator. |
+
+- **Noise is calibrated to p5's statistics** so upstream's thresholds keep their meaning (for example `noise ** 3 < 0.1` for tree placement and `noise - 0.55` for mountain peaks). From 200,000 samples: p5 noise has mean 0.472 and spread 0.12 to 0.14; a 4-octave simplex sum (p5's octave scheme) has mean 0 and spread 0.246, and changes about twice as fast over small distances. `src/noise.js` scales inputs by 0.42 (best fit of step sizes at distances 0.05, 0.2, 1 and 3) and maps the sum to mean 0.472, spread 0.125, clamped to [0, 1]. p5 mirrored negative inputs (`noise(-x) == noise(x)`); simplex does not, which removes a mirror symmetry around x = 0 in upstream worlds.
+- **The string hash for stream keys is 15 lines of our own (cyrb53, truncated to 32 bits),** not a package: it only turns keys such as `("coast", "draw", 3, 7)` into a generator seed, and pure-rand has no string hashing.
+- **`random()` and `Noise.noise()` read a current source set with `withRandom()` and `withNoise()`.** Element code (about 3,000 lines from upstream) stays unchanged. Generation is synchronous, so several worlds on one page cannot interfere.
+- **The compatibility page uses an import map** for the two packages, so it runs from plain static files and under Vite alike.

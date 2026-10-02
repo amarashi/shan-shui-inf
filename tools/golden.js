@@ -2,7 +2,6 @@
 //
 //   node tools/golden.js record   write golden/upstream.json
 //   node tools/golden.js check    re-run and compare against golden/upstream.json
-//   node tools/golden.js check --source modules   same, for the compatibility page
 //
 // For each seed: load upstream/index.html?seed=S, then run a fixed scroll script through
 // upstream's own `xcroll`. After every step we hash MEM.canv (the markup on screen). At the
@@ -15,7 +14,6 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { normalise } from "./lib/normalise.js";
-import { startServer } from "./lib/server.js";
 import { launch, openUpstream, xcroll } from "./lib/upstream.js";
 
 export const SEEDS = ["1", "42", "coast", "sydney", "1234567890123"];
@@ -105,17 +103,12 @@ function compare(want, got) {
   return problems;
 }
 
-// --source upstream (default): upstream/index.html from disk.
-// --source modules: the compatibility page (index.html on the modules), served by Vite.
-// Only upstream may be recorded; the module build is only ever checked against it.
-const { values, positionals } = parseArgs({
-  allowPositionals: true,
-  options: { source: { type: "string", default: "upstream" } },
-});
+// Phase 1 also checked the module build with --source modules. Since Phase 2 step 3 the
+// engine draws different worlds from upstream on purpose, so only upstream is checked here.
+const { positionals } = parseArgs({ allowPositionals: true, options: {} });
 if (positionals.length > 1) throw new Error(`unexpected arguments: ${positionals.slice(1).join(" ")}`);
 const mode = positionals[0];
 if (mode === "record") {
-  if (values.source !== "upstream") throw new Error("only the upstream page can be recorded");
   const result = await recordAll();
   mkdirSync(new URL(".", GOLDEN), { recursive: true });
   writeFileSync(GOLDEN, JSON.stringify(result, null, 1) + "\n");
@@ -125,17 +118,15 @@ if (mode === "record") {
   console.log(`recorded with Chromium ${result.chromium}`);
 } else if (mode === "check") {
   const want = JSON.parse(readFileSync(GOLDEN, "utf8"));
-  const server = values.source === "modules" ? await startServer() : null;
-  const got = await recordAll(server ? `${server.url}index.html` : undefined);
-  await server?.close();
+  const got = await recordAll();
   if (got.chromium !== want.chromium) console.log(`note: recorded with Chromium ${want.chromium}, now ${got.chromium}`);
   const problems = compare(want, got);
   if (problems.length) {
     console.log(problems.join("\n"));
     process.exit(1);
   }
-  console.log(`golden OK (${values.source}): ${SEEDS.length} seeds x ${STEPS.length} steps match byte for byte`);
+  console.log(`golden OK: upstream still gives ${SEEDS.length} seeds x ${STEPS.length} steps byte for byte`);
 } else if (mode) {
-  console.error("usage: node tools/golden.js record|check [--source upstream|modules]");
+  console.error("usage: node tools/golden.js record|check");
   process.exit(2);
 }

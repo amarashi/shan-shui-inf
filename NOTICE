@@ -13,7 +13,8 @@ only as the reference for the golden-master tests and must not be edited.
 
 The Perlin noise implementation in upstream/index.html is adapted from p5.js
 (src/math/noise.js), which is licensed under the GNU LGPL 2.1. See PLAN.md,
-section 3, "Licence note".
+section 3, "Licence note". The code in src/ does not use it: since Phase 2 its
+noise comes from the MIT-licensed simplex-noise package.
 
 This fork changes the subject matter from Chinese shan shui landscapes to an
 Australian coastal landscape. Changes are described in PLAN.md and the git
