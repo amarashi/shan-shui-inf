@@ -136,6 +136,8 @@ Size guide: S is hours, M is a day or two, L is several days of agent work with 
 
 Done when: golden hashes are committed, both sheet tools produce images, baseline numbers are written down.
 
+*As built (2 October 2026):* `pnpm golden:record|golden:check`, `pnpm sheet`, `pnpm specimen -- <element>`, `pnpm perf`. Sheets are rasterised by Chromium screenshots (what visitors see, including multiply blending over the paper) and tiled with sharp. "Mobile CPU" means Chromium's 4x CPU throttling through the DevTools protocol, because Playwright has no built-in CPU throttling. Baseline medians: first screen in about 0.6 s on desktop and 2.8 s throttled, about 41,000 SVG elements and 14 MB of markup, and each scroll step rebuilds everything (0.14 s desktop, 0.66 s throttled).
+
 ### Phase 1: modularise with zero change in output (M)
 
 1. Split the script blocks into the modules in section 4 (upstream elements only). Declare the implicit globals (fact 3).
