@@ -10,7 +10,8 @@
     "dev": "vite",
     "test": "vitest run",
     "golden:record": "node tools/golden.js record",
-    "golden:check": "node tools/golden.js check"
+    "golden:check": "node tools/golden.js check",
+    "sheet": "node tools/sheet.js"
   },
   "devDependencies": {
     "playwright": "^1.62.1",

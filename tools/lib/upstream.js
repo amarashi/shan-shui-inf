@@ -25,6 +25,15 @@ export function xcroll(page, dx) {
   return page.evaluate((v) => xcroll(v), dx);
 }
 
+/**
+ * PNG of the painting as a visitor sees it: the SVG multiplied over the paper texture.
+ * Upstream's floating buttons are hidden with CSS first; generation is not affected.
+ */
+export async function screenshot(page) {
+  await page.addStyleTag({ content: "#SETTING, #SOURCE_BTN { display: none !important; }" });
+  return page.locator("#BG").screenshot();
+}
+
 /** The SVG element currently on screen, as markup (what upstream's "Download as .SVG" saves). */
 export function currentSvg(page) {
   return page.evaluate(() => document.getElementById("BG").innerHTML);
