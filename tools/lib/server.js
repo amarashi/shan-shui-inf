@@ -1,30 +1,21 @@
-// Serve the repository as plain static files, so pages that load ES modules (the
-// compatibility page at /index.html) can be opened in Playwright; file:// URLs cannot load
-// modules. Not Vite's dev server: that injects its client script and may reload the page,
-// and the golden check must see the files exactly as they are on disk.
-import { readFile } from "node:fs/promises";
-import { createServer } from "node:http";
-import { extname, join, normalize } from "node:path";
+// Serve the repository with Vite so pages that load ES modules, npm packages and a module
+// Web Worker (the compatibility page at /index.html) can be opened in Playwright.
+//
+// Configured so nothing can reload a page under a tool: no hot module replacement, and no
+// dependency pre-bundling (whose discovery step can trigger a full reload). The two
+// runtime packages are plain ES modules, so they need no pre-bundling.
 import { fileURLToPath } from "node:url";
-
-const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const TYPES = { ".html": "text/html", ".js": "text/javascript", ".json": "application/json", ".css": "text/css" };
+import { createServer } from "vite";
 
 /** Start a server on a free port. Returns { url, close }. */
 export async function startServer() {
-  const server = createServer(async (req, res) => {
-    const path = normalize(decodeURIComponent(new URL(req.url, "http://x").pathname));
-    try {
-      const body = await readFile(join(ROOT, path));
-      res.writeHead(200, { "content-type": TYPES[extname(path)] ?? "application/octet-stream" });
-      res.end(body);
-    } catch {
-      res.writeHead(404).end();
-    }
+  const server = await createServer({
+    root: fileURLToPath(new URL("../../", import.meta.url)),
+    logLevel: "error",
+    clearScreen: false,
+    server: { port: 0, host: "127.0.0.1", hmr: false, watch: null },
+    optimizeDeps: { noDiscovery: true, include: [] },
   });
-  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
-  return {
-    url: `http://127.0.0.1:${server.address().port}/`,
-    close: () => new Promise((resolve) => server.close(resolve)),
-  };
+  await server.listen();
+  return { url: server.resolvedUrls.local[0], close: () => server.close() };
 }

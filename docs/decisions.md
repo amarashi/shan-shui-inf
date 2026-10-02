@@ -34,3 +34,11 @@ No runtime dependencies so far.
 - **The string hash for stream keys is 15 lines of our own (cyrb53, truncated to 32 bits),** not a package: it only turns keys such as `("coast", "draw", 3, 7)` into a generator seed, and pure-rand has no string hashing.
 - **`random()` and `Noise.noise()` read a current source set with `withRandom()` and `withNoise()`.** Element code (about 3,000 lines from upstream) stays unchanged. Generation is synchronous, so several worlds on one page cannot interfere.
 - **The compatibility page uses an import map** for the two packages, so it runs from plain static files and under Vite alike.
+
+## Phase 2 steps 6 and 7: incremental DOM and the worker
+
+- **One `<g>` per drawn part, not per chunk.** Paint order interleaves parts of different chunks, so per-chunk groups could not keep the order. A view holds about 50 to 100 parts.
+- **The worker sends markup, not display lists.** Copying tens of thousands of point arrays between threads would cost more than it saves. Lists stay available in Node (`createWorld`) for later back ends.
+- **The paper texture is drawn in the worker too** and sent as one transferred pixel buffer.
+- **Tools serve pages with Vite again, configured not to reload** (`hmr: false`, `optimizeDeps.noDiscovery`). Workers do not use the page's import map, so plain static files cannot load the worker's package imports. This replaces the `node:http` server from Phase 1 and the import map in `index.html`.
+- **Measured on 3 October 2026** (seeds 1, 42, coast): the longest main-thread task while loading fell from 0.56 to 0.88 s (upstream, desktop) to 0 to 0.1 s, and from 2.6 to 4.2 s to 0.07 to 0.29 s under 4x CPU throttling, where the first screen now completes in 0.65 to 1.4 s instead of 3.3 to 5.0 s. What remains on the main thread is inserting markup. (The new engine draws different worlds for a seed, so this is a like-for-like comparison only roughly.)

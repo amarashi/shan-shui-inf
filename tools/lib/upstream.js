@@ -9,9 +9,9 @@ export function launch() {
 }
 
 /**
- * Open the upstream page (or the compatibility page, which exposes the same MEM and
- * xcroll globals) with a seed. All scripts on either page finish before the load event,
- * so when `goto` resolves the first screen and the paper texture are both done.
+ * Open the upstream page or the compatibility page with a seed; both expose xcroll().
+ * Upstream finishes everything before the load event. The compatibility page generates in
+ * a worker and sets window.shanshuiReady, a promise for the first screen and the paper.
  * @param {import("playwright").Browser} browser
  * @param {string} seed raw seed string, passed as `?seed=` exactly as upstream reads it
  * @param {string} [url] page URL; defaults to upstream/index.html
@@ -20,10 +20,11 @@ export function launch() {
 export async function openUpstream(browser, seed, url = UPSTREAM_URL, query = "") {
   const page = await browser.newPage({ viewport: { width: 3200, height: 900 } });
   await page.goto(`${url}?seed=${seed}${query ? `&${query}` : ""}`);
+  await page.evaluate(() => window.shanshuiReady);
   return page;
 }
 
-/** Scroll the upstream view by `dx` world units through its own `xcroll`. */
+/** Scroll by `dx` world units through the page's own `xcroll` (awaited if it returns a promise). */
 export function xcroll(page, dx) {
   return page.evaluate((v) => xcroll(v), dx);
 }

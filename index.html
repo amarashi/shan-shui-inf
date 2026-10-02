@@ -3,18 +3,10 @@
   Same markup and UI as upstream/index.html; the inline scripts moved to compat/main.js.
   No doctype on purpose: upstream has none, so both pages render in quirks mode and lay
   out identically. Options: ?seed=<anything>&palette=ink|roles
+  Serve with Vite (pnpm dev): it resolves the package imports, including the worker's.
 -->
 <meta charset="utf-8" />
 <title>{Shan, Shui}* (module build)</title>
-<script type="importmap">
-  {
-    "imports": {
-      "pure-rand/generator/xoroshiro128plus": "./node_modules/pure-rand/lib/esm/generator/xoroshiro128plus.js",
-      "pure-rand/distribution/uniformFloat64": "./node_modules/pure-rand/lib/esm/distribution/uniformFloat64.js",
-      "simplex-noise": "./node_modules/simplex-noise/dist/esm/simplex-noise.js"
-    }
-  }
-</script>
 <script type="module" src="./compat/main.js"></script>
 
 <body style="margin:0">
