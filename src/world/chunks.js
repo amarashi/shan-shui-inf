@@ -1,7 +1,8 @@
 // A world: chunks generated on demand, each from its own random streams, painted back to
 // front. Same seed, same world, whatever order chunks are generated in.
 //
-// createWorld({ seed }) returns { MEM, update, xcroll, calcViewBox, noise, chunk }.
+// createWorld({ seed }) returns { MEM, update, xcroll, calcViewBox, noise, chunk, cached }.
+// Chunks far from the view are evicted on update(), so memory stays bounded.
 // MEM keeps upstream's field names (cursx, windx, windy, cwid, canv, chunks) so the
 // compatibility page and tools keep working.
 import { createNoise, withNoise } from "../noise.js";
@@ -10,6 +11,10 @@ import { toSVG } from "../render/svg.js";
 import { stream, withRandom } from "../rng.js";
 import { LAYERS } from "./layers.js";
 import { CHUNK, createPlanner, REACH } from "./plan.js";
+
+// Chunks further than this (in world units) beyond either edge of the view are evicted.
+// They regenerate identically if the view comes back.
+const KEEP = 2 * CHUNK;
 
 /**
  * @param {{seed: string, palette?: {paint: Function}}} opts
@@ -61,11 +66,28 @@ export function createWorld(opts) {
     return a.y - b.y || a.k - b.k || a.i - b.i || a.p - b.p;
   }
 
+  /** Chunk indices that can put a record inside [xmin, xmax]. */
+  function span(xmin, xmax) {
+    return [Math.floor((xmin - REACH) / CHUNK), Math.floor((xmax + REACH) / CHUNK)];
+  }
+
   /** Make sure every chunk that can put a record inside [xmin, xmax] exists. */
   function load(xmin, xmax) {
-    var kmin = Math.floor((xmin - REACH) / CHUNK);
-    var kmax = Math.floor((xmax + REACH) / CHUNK);
-    for (var k = kmin; k <= kmax; k++) chunk(k);
+    var r = span(xmin, xmax);
+    for (var k = r[0]; k <= r[1]; k++) chunk(k);
+  }
+
+  /** Drop chunks that cannot reach [xmin - KEEP, xmax + KEEP], so memory stays bounded. */
+  function evict(xmin, xmax) {
+    var r = span(xmin - KEEP, xmax + KEEP);
+    for (var k of cache.keys()) {
+      if (k < r[0] || k > r[1]) {
+        cache.delete(k);
+        sorted = null;
+      }
+    }
+    // planning a chunk reads mountains from up to 2 chunks either side
+    planner.forget(r[0] - 2, r[1] + 2);
   }
 
   // Upstream's chunkrender: every part whose record x is within one chunk width of the view.
@@ -84,6 +106,7 @@ export function createWorld(opts) {
   }
 
   function update() {
+    evict(MEM.cursx - CHUNK, MEM.cursx + MEM.windx + CHUNK);
     load(MEM.cursx - CHUNK, MEM.cursx + MEM.windx + CHUNK);
     render(MEM.cursx, MEM.cursx + MEM.windx);
   }
@@ -97,5 +120,16 @@ export function createWorld(opts) {
     return "" + MEM.cursx + " 0 " + MEM.windx / zoom + " " + MEM.windy / zoom;
   }
 
-  return { MEM: MEM, update: update, xcroll: xcroll, calcViewBox: calcViewBox, noise: noise, chunk: chunk };
+  return {
+    MEM: MEM,
+    update: update,
+    xcroll: xcroll,
+    calcViewBox: calcViewBox,
+    noise: noise,
+    chunk: chunk,
+    /** Number of chunks held in memory. */
+    cached: function () {
+      return cache.size;
+    },
+  };
 }
