@@ -11,7 +11,8 @@
     "test": "vitest run",
     "golden:record": "node tools/golden.js record",
     "golden:check": "node tools/golden.js check",
-    "sheet": "node tools/sheet.js"
+    "sheet": "node tools/sheet.js",
+    "specimen": "node tools/specimen.js"
   },
   "devDependencies": {
     "playwright": "^1.62.1",
