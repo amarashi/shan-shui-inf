@@ -6,6 +6,7 @@ import { water } from "../elements/sea.js";
 import { Mount } from "../elements/terrain.js";
 import { randChoice } from "../geom.js";
 import { Noise } from "../noise.js";
+import { toSVG } from "../render/svg.js";
 
 export function createWorld() {
   var MEM = {
@@ -131,6 +132,8 @@ export function createWorld() {
 
   function chunkloader(xmin, xmax) {
     var add = function(nch) {
+      // Each chunk keeps its display list and is rendered to markup once, here.
+      nch.canv = toSVG(nch.list);
       if (nch.canv.includes("NaN")) {
         nch.canv = nch.canv.replace(/NaN/g, -1000);
       }
@@ -171,21 +174,21 @@ export function createWorld() {
             tag: plan[i].tag,
             x: plan[i].x,
             y: plan[i].y,
-            canv: Mount.mountain(plan[i].x, plan[i].y, i * 2 * random()),
+            list: Mount.mountain(plan[i].x, plan[i].y, i * 2 * random()),
             //{col:function(x){return "rgba(100,100,100,"+(0.5*random()*plan[i].y/MEM.windy)+")"}}),
           });
           add({
             tag: plan[i].tag,
             x: plan[i].x,
             y: plan[i].y - 10000,
-            canv: water(plan[i].x, plan[i].y, i * 2),
+            list: water(plan[i].x, plan[i].y, i * 2),
           });
         } else if (plan[i].tag == "flatmount") {
           add({
             tag: plan[i].tag,
             x: plan[i].x,
             y: plan[i].y,
-            canv: Mount.flatMount(
+            list: Mount.flatMount(
               plan[i].x,
               plan[i].y,
               2 * random() * Math.PI,
@@ -201,7 +204,7 @@ export function createWorld() {
             tag: plan[i].tag,
             x: plan[i].x,
             y: plan[i].y,
-            canv: Mount.distMount(plan[i].x, plan[i].y, random() * 100, {
+            list: Mount.distMount(plan[i].x, plan[i].y, random() * 100, {
               hei: 150,
               len: randChoice([500, 1000, 1500]),
             }),
@@ -211,41 +214,12 @@ export function createWorld() {
             tag: plan[i].tag,
             x: plan[i].x,
             y: plan[i].y,
-            canv: Arch.boat01(plan[i].x, plan[i].y, random(), {
+            list: Arch.boat01(plan[i].x, plan[i].y, random(), {
               sca: plan[i].y / 800,
               fli: randChoice([true, false]),
             }),
           });
-        } else if (plan[i].tag == "redcirc") {
-          add({
-            tag: plan[i].tag,
-            x: plan[i].x,
-            y: plan[i].y,
-            canv:
-              "<circle cx='" +
-              plan[i].x +
-              "' cy='" +
-              plan[i].y +
-              "' r='20' stroke='black' fill='red' />",
-          });
-        } else if (plan[i].tag == "greencirc") {
-          add({
-            tag: plan[i].tag,
-            x: plan[i].x,
-            y: plan[i].y,
-            canv:
-              "<circle cx='" +
-              plan[i].x +
-              "' cy='" +
-              plan[i].y +
-              "' r='20' stroke='black' fill='green' />",
-          });
         }
-        // add ({
-        //   x: plan[i].x,
-        //   y: plan[i].y,
-        //   canv:"<circle cx='"+plan[i].x+"' cy='"+plan[i].y+"' r='20' stroke='black' fill='red' />"
-        // })
       }
     }
   }

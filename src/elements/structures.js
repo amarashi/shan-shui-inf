@@ -3,7 +3,7 @@ import { random } from "../rng.js";
 import { div, stroke, texture } from "../brush.js";
 import { normRand, PolyTools, randChoice, wtrand } from "../geom.js";
 import { Noise } from "../noise.js";
-import { poly } from "../render/svg.js";
+import { poly, text } from "../render/displaylist.js";
 import { Man } from "./figures.js";
 
   export const Arch = new function() {
@@ -42,29 +42,29 @@ import { Man } from "./figures.js";
           ptlist[ptlist.length - 1].push([nx, ny]);
         }
       }
-      var canv = "";
-      canv += poly(
+      var canv = [];
+      canv.push(...poly(
         ptlist[0]
           .slice(0, -1)
           .concat(ptlist[ptlist.length - 1].slice(0, -1).reverse()),
         { xof: xoff, yof: yoff, fil: "white", str: "none" },
-      );
-      canv += poly(ptlist[0], {
+      ));
+      canv.push(...poly(ptlist[0], {
         xof: xoff,
         yof: yoff,
         fil: "none",
         str: "rgba(100,100,100,0.3)",
         wid: 2,
-      });
-      canv += poly(ptlist[ptlist.length - 1], {
+      }));
+      canv.push(...poly(ptlist[ptlist.length - 1], {
         xof: xoff,
         yof: yoff,
         fil: "none",
         str: "rgba(100,100,100,0.3)",
         wid: 2,
-      });
+      }));
 
-      canv += texture(ptlist, {
+      canv.push(...texture(ptlist, {
         xof: xoff,
         yof: yoff,
         tex: tex,
@@ -81,7 +81,7 @@ import { Man } from "./figures.js";
         noi: function(x) {
           return 5;
         },
-      });
+      }));
 
       for (var i = 0; i < reso[0]; i++) {
         //canv += poly(ptlist[i],{xof:xoff,yof:yoff,fil:"none",str:"red",wid:2})
@@ -142,18 +142,18 @@ import { Man } from "./figures.js";
         [-wid * 0.5, 0],
       ];
 
-      var canv = "";
+      var canv = [];
       if (!tra) {
-        canv += poly(polist, {
+        canv.push(...poly(polist, {
           xof: xoff,
           yof: yoff,
           str: "none",
           fil: "white",
-        });
+        }));
       }
 
       for (var i = 0; i < ptlist.length; i++) {
-        canv += stroke(
+        canv.push(...stroke(
           ptlist[i].map(function(x) {
             return [x[0] + xoff, x[1] + yoff];
           }),
@@ -165,7 +165,7 @@ import { Man } from "./figures.js";
               return 1;
             },
           },
-        );
+        ));
       }
       return canv;
     };
@@ -274,7 +274,7 @@ import { Man } from "./figures.js";
           (open + ptlist.length) % ptlist.length
         ].slice(0, -1);
       }
-      var canv = "";
+      var canv = [];
 
       for (var i = 0; i < ptlist.length / 2; i++) {
         for (var j = 0; j < ptlist[i].length; j++) {
@@ -293,18 +293,18 @@ import { Man } from "./figures.js";
             2,
           );
           ln[0][0] += (random() - 0.5) * hei * 0.5;
-          canv += poly(ln, {
+          canv.push(...poly(ln, {
             xof: xoff,
             yof: yoff,
             fil: "none",
             str: "rgba(100,100,100,0.5)",
             wid: 2,
-          });
+          }));
         }
       }
 
       for (var i = 0; i < ptlist.length; i++) {
-        canv += stroke(
+        canv.push(...stroke(
           ptlist[i].map(function(x) {
             return [x[0] + xoff, x[1] + yoff];
           }),
@@ -316,7 +316,7 @@ import { Man } from "./figures.js";
               return 1;
             },
           },
-        );
+        ));
       }
       return canv;
     };
@@ -383,7 +383,7 @@ import { Man } from "./figures.js";
         div(opf([[-wid * 0.5 + quat, -hei - per / 2], [mid + quat, -hei]]), 5),
       );
 
-      var canv = "";
+      var canv = [];
 
       var polist = opf([
         [-wid * 0.5, 0],
@@ -392,10 +392,10 @@ import { Man } from "./figures.js";
         [wid * 0.5, 0],
         [mid, per],
       ]);
-      canv += poly(polist, { xof: xoff, yof: yoff, str: "none", fil: "white" });
+      canv.push(...poly(polist, { xof: xoff, yof: yoff, str: "none", fil: "white" }));
 
       for (var i = 0; i < ptlist.length; i++) {
-        canv += stroke(
+        canv.push(...stroke(
           ptlist[i].map(function(x) {
             return [x[0] + xoff, x[1] + yoff];
           }),
@@ -407,7 +407,7 @@ import { Man } from "./figures.js";
               return 1;
             },
           },
-        );
+        ));
       }
 
       if (pla[0] == 1) {
@@ -421,20 +421,14 @@ import { Man } from "./figures.js";
         var mp = PolyTools.midPt(pp);
         var a = Math.atan2(pp[1][1] - pp[0][1], pp[1][0] - pp[0][0]);
         var adeg = (a * 180) / Math.PI;
-        canv +=
-          "<text font-size='" +
-          hei * 0.6 +
-          "' font-family='Verdana'" +
-          " style='fill:rgba(100,100,100,0.9)'" +
-          " text-anchor='middle' transform='translate(" +
-          (mp[0] + xoff) +
-          "," +
-          (mp[1] + yoff) +
-          ") rotate(" +
-          adeg +
-          ")'>" +
-          pla[1] +
-          "</text>";
+        canv.push(
+          ...text(mp[0] + xoff, mp[1] + yoff, {
+            size: hei * 0.6,
+            rot: adeg,
+            text: pla[1],
+            fill: "rgba(100,100,100,0.9)",
+          }),
+        );
       }
       return canv;
     };
@@ -451,7 +445,7 @@ import { Man } from "./figures.js";
 
       var ptlist = [];
       var polist = [[0, -hei]];
-      var canv = "";
+      var canv = [];
       for (var i = 0; i < sid; i++) {
         var fx = wid * ((i * 1.0) / (sid - 1) - 0.5);
         var fy = per * (1 - Math.abs((i * 1.0) / (sid - 1) - 0.5) * 2);
@@ -463,9 +457,9 @@ import { Man } from "./figures.js";
         polist.push([fxx, fy]);
       }
 
-      canv += poly(polist, { xof: xoff, yof: yoff, str: "none", fil: "white" });
+      canv.push(...poly(polist, { xof: xoff, yof: yoff, str: "none", fil: "white" }));
       for (var i = 0; i < ptlist.length; i++) {
-        canv += stroke(
+        canv.push(...stroke(
           div(ptlist[i], 5).map(function(x) {
             return [x[0] + xoff, x[1] + yoff];
           }),
@@ -477,7 +471,7 @@ import { Man } from "./figures.js";
               return 1;
             },
           },
-        );
+        ));
       }
 
       return canv;
@@ -496,48 +490,48 @@ import { Man } from "./figures.js";
       var h0 = hei * p;
       var h1 = hei * (1 - p);
 
-      var canv = "";
-      canv += hut(xoff, yoff - hei, { hei: h0, wid: wid });
-      canv += box(xoff, yoff, {
+      var canv = [];
+      canv.push(...hut(xoff, yoff - hei, { hei: h0, wid: wid }));
+      canv.push(...box(xoff, yoff, {
         hei: h1,
         wid: (wid * 2) / 3,
         per: per,
         bot: false,
-      });
+      }));
 
-      canv += rail(xoff, yoff, seed, {
+      canv.push(...rail(xoff, yoff, seed, {
         tra: true,
         fro: false,
         hei: 10,
         wid: wid,
         per: per * 2,
         seg: (3 + random() * 3) | 0,
-      });
+      }));
 
       var mcnt = randChoice([0, 1, 1, 2]);
       if (mcnt == 1) {
-        canv += Man.man(xoff + normRand(-wid / 3, wid / 3), yoff, {
+        canv.push(...Man.man(xoff + normRand(-wid / 3, wid / 3), yoff, {
           fli: randChoice([true, false]),
           sca: 0.42,
-        });
+        }));
       } else if (mcnt == 2) {
-        canv += Man.man(xoff + normRand(-wid / 4, -wid / 5), yoff, {
+        canv.push(...Man.man(xoff + normRand(-wid / 4, -wid / 5), yoff, {
           fli: false,
           sca: 0.42,
-        });
-        canv += Man.man(xoff + normRand(wid / 5, wid / 4), yoff, {
+        }));
+        canv.push(...Man.man(xoff + normRand(wid / 5, wid / 4), yoff, {
           fli: true,
           sca: 0.42,
-        });
+        }));
       }
-      canv += rail(xoff, yoff, seed, {
+      canv.push(...rail(xoff, yoff, seed, {
         tra: false,
         fro: true,
         hei: 10,
         wid: wid,
         per: per * 2,
         seg: (3 + random() * 3) | 0,
-      });
+      }));
 
       return canv;
     };
@@ -553,11 +547,11 @@ import { Man } from "./figures.js";
       var rai = args.rai != undefined ? args.rai : false;
 
       seed = seed != undefined ? seed : 0;
-      var canv = "";
+      var canv = [];
 
       var hoff = 0;
       for (var i = 0; i < sto; i++) {
-        canv += box(xoff, yoff - hoff, {
+        canv.push(...box(xoff, yoff - hoff, {
           tra: false,
           hei: hei,
           wid: wid * Math.pow(0.85, i),
@@ -573,8 +567,8 @@ import { Man } from "./figures.js";
               }),
             );
           },
-        });
-        canv += rai
+        }));
+        canv.push(...(rai
           ? rail(xoff, yoff - hoff, i * 0.2, {
               wid: wid * Math.pow(0.85, i) * 1.1,
               hei: hei / 2,
@@ -583,19 +577,19 @@ import { Man } from "./figures.js";
               wei: 0.5,
               tra: false,
             })
-          : [];
+          : []));
         var pla = undefined;
         if (sto == 1 && random() < 1 / 3) {
           pla = [1, "Pizza Hut"];
         }
-        canv += roof(xoff, yoff - hoff - hei, {
+        canv.push(...roof(xoff, yoff - hoff - hei, {
           hei: hei,
           wid: wid * Math.pow(0.9, i),
           rot: rot,
           wei: 1.5,
           per: per,
           pla: pla,
-        });
+        }));
 
         hoff += hei * 1.5;
       }
@@ -610,11 +604,11 @@ import { Man } from "./figures.js";
       var sto = args.sto != undefined ? args.sto : 7;
 
       seed = seed != undefined ? seed : 0;
-      var canv = "";
+      var canv = [];
 
       var hoff = 0;
       for (var i = 0; i < sto; i++) {
-        canv += box(xoff, yoff - hoff, {
+        canv.push(...box(xoff, yoff - hoff, {
           tra: false,
           hei: hei,
           wid: wid * Math.pow(0.85, i),
@@ -624,8 +618,8 @@ import { Man } from "./figures.js";
           dec: function(a) {
             return deco(1, Object.assign({}, a, { hsp: [1, 4], vsp: [1, 2] }));
           },
-        });
-        canv += rail(xoff, yoff - hoff, i * 0.2, {
+        }));
+        canv.push(...rail(xoff, yoff - hoff, i * 0.2, {
           seg: 5,
           wid: wid * Math.pow(0.85, i) * 1.1,
           hei: hei / 2,
@@ -633,14 +627,14 @@ import { Man } from "./figures.js";
           rot: rot,
           wei: 0.5,
           tra: false,
-        });
-        canv += pagroof(xoff, yoff - hoff - hei, {
+        }));
+        canv.push(...pagroof(xoff, yoff - hoff - hei, {
           hei: hei * 1.5,
           wid: wid * Math.pow(0.9, i),
           rot: rot,
           wei: 1.5,
           per: per,
-        });
+        }));
         hoff += hei * 1.5;
       }
       return canv;
@@ -654,11 +648,11 @@ import { Man } from "./figures.js";
       var sto = args.sto != undefined ? args.sto : 2;
 
       seed = seed != undefined ? seed : 0;
-      var canv = "";
+      var canv = [];
 
       var hoff = 0;
       for (var i = 0; i < sto; i++) {
-        canv += box(xoff, yoff - hoff, {
+        canv.push(...box(xoff, yoff - hoff, {
           tra: true,
           hei: hei,
           wid: wid * Math.pow(0.85, i),
@@ -668,8 +662,8 @@ import { Man } from "./figures.js";
           dec: function(a) {
             return [];
           },
-        });
-        canv += rail(xoff, yoff - hoff, i * 0.2, {
+        }));
+        canv.push(...rail(xoff, yoff - hoff, i * 0.2, {
           seg: 3,
           wid: wid * Math.pow(0.85, i) * 1.2,
           hei: hei / 3,
@@ -677,14 +671,14 @@ import { Man } from "./figures.js";
           rot: rot,
           wei: 0.5,
           tra: true,
-        });
-        canv += pagroof(xoff, yoff - hoff - hei, {
+        }));
+        canv.push(...pagroof(xoff, yoff - hoff - hei, {
           hei: hei * 1,
           wid: wid * Math.pow(0.9, i),
           rot: rot,
           wei: 1.5,
           per: per,
-        });
+        }));
         hoff += hei * 1.2;
       }
       return canv;
@@ -695,16 +689,16 @@ import { Man } from "./figures.js";
       var len = args.len != undefined ? args.len : 120;
       var sca = args.sca != undefined ? args.sca : 1;
       var fli = args.fli != undefined ? args.fli : false;
-      var canv = "";
+      var canv = [];
 
       var dir = fli ? -1 : 1;
-      canv += Man.man(xoff + 20 * sca * dir, yoff, {
+      canv.push(...Man.man(xoff + 20 * sca * dir, yoff, {
         ite: Man.stick01,
         hat: Man.hat02,
         sca: 0.5 * sca,
         fli: !fli,
         len: [0, 30, 20, 30, 10, 30, 30, 30, 30],
-      });
+      }));
 
       var plist1 = [];
       var plist2 = [];
@@ -719,14 +713,14 @@ import { Man } from "./figures.js";
         plist2.push([i * dir, fun2(i / len)]);
       }
       var plist = plist1.concat(plist2.reverse());
-      canv += poly(plist, { xof: xoff, yof: yoff, fil: "white" });
-      canv += stroke(plist.map(v => [xoff + v[0], yoff + v[1]]), {
+      canv.push(...poly(plist, { xof: xoff, yof: yoff, fil: "white" }));
+      canv.push(...stroke(plist.map(v => [xoff + v[0], yoff + v[1]]), {
         wid: 1,
         fun: function(x) {
           return Math.sin(x * Math.PI * 2);
         },
         col: "rgba(100,100,100,0.4)",
-      });
+      }));
 
       return canv;
     };
@@ -736,7 +730,7 @@ import { Man } from "./figures.js";
       var hei = args.hei != undefined ? args.hei : 100;
       var wid = args.wid != undefined ? args.wid : 20;
 
-      var canv = "";
+      var canv = [];
       var toGlobal = function(v) {
         return [v[0] + xoff, v[1] + yoff];
       };
@@ -764,42 +758,42 @@ import { Man } from "./figures.js";
       var bch = [[0.7, -0.85], [1, -0.675], [0.7, -0.5]];
 
       for (var i = 0; i < bch.length; i++) {
-        canv += quickstroke([
+        canv.push(...quickstroke([
           [-bch[i][0] * wid, bch[i][1] * hei],
           [bch[i][0] * wid, bch[i][1] * hei],
-        ]);
-        canv += quickstroke([
+        ]));
+        canv.push(...quickstroke([
           [-bch[i][0] * wid, bch[i][1] * hei],
           [0, (bch[i][1] - 0.05) * hei],
-        ]);
-        canv += quickstroke([
+        ]));
+        canv.push(...quickstroke([
           [bch[i][0] * wid, bch[i][1] * hei],
           [0, (bch[i][1] - 0.05) * hei],
-        ]);
+        ]));
 
-        canv += quickstroke([
+        canv.push(...quickstroke([
           [-bch[i][0] * wid, bch[i][1] * hei],
           [-bch[i][0] * wid, (bch[i][1] + 0.1) * hei],
-        ]);
-        canv += quickstroke([
+        ]));
+        canv.push(...quickstroke([
           [bch[i][0] * wid, bch[i][1] * hei],
           [bch[i][0] * wid, (bch[i][1] + 0.1) * hei],
-        ]);
+        ]));
       }
 
       var l10 = div([p00, p10, p20, p30], 5);
       var l11 = div([p01, p11, p21, p31], 5);
 
       for (var i = 0; i < l10.length - 1; i++) {
-        canv += quickstroke([l10[i], l11[i + 1]]);
-        canv += quickstroke([l11[i], l10[i + 1]]);
+        canv.push(...quickstroke([l10[i], l11[i + 1]]));
+        canv.push(...quickstroke([l11[i], l10[i + 1]]));
       }
 
-      canv += quickstroke([p00, p01]);
-      canv += quickstroke([p10, p11]);
-      canv += quickstroke([p20, p21]);
-      canv += quickstroke([p00, p10, p20, p30]);
-      canv += quickstroke([p01, p11, p21, p31]);
+      canv.push(...quickstroke([p00, p01]));
+      canv.push(...quickstroke([p10, p11]));
+      canv.push(...quickstroke([p20, p21]));
+      canv.push(...quickstroke([p00, p10, p20, p30]));
+      canv.push(...quickstroke([p01, p11, p21, p31]));
 
       return canv;
     };

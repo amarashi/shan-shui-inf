@@ -3,7 +3,7 @@ import { random } from "../rng.js";
 import { div, stroke } from "../brush.js";
 import { bezmh, distance, normRand } from "../geom.js";
 import { Noise } from "../noise.js";
-import { poly } from "../render/svg.js";
+import { poly } from "../render/displaylist.js";
 
   export const Man = new function() {
     var expand = function(ptlist, wfun) {
@@ -91,7 +91,7 @@ import { poly } from "../render/svg.js";
       var args = args != undefined ? args : {};
       var fli = args.fli != undefined ? args.fli : false;
 
-      var canv = "";
+      var canv = [];
       var seed = random();
       var f = fli
         ? flipper
@@ -99,7 +99,7 @@ import { poly } from "../render/svg.js";
             return x;
           };
       //var plist = [[-0.5,0.5],[0.5,0.5],[0.5,1],[-0.5,2]]
-      canv += poly(
+      canv.push(...poly(
         tranpoly(
           p0,
           p1,
@@ -114,7 +114,7 @@ import { poly } from "../render/svg.js";
           ]),
         ),
         { fil: "rgba(100,100,100,0.8)" },
-      );
+      ));
 
       var qlist1 = [];
       for (var i = 0; i < 10; i++) {
@@ -123,10 +123,10 @@ import { poly } from "../render/svg.js";
           0.5 - i * 0.3,
         ]);
       }
-      canv += poly(tranpoly(p0, p1, f(qlist1)), {
+      canv.push(...poly(tranpoly(p0, p1, f(qlist1)), {
         str: "rgba(100,100,100,0.8)",
         wid: 1,
-      });
+      }));
 
       return canv;
     };
@@ -135,7 +135,7 @@ import { poly } from "../render/svg.js";
       var args = args != undefined ? args : {};
       var fli = args.fli != undefined ? args.fli : false;
 
-      var canv = "";
+      var canv = [];
       var seed = random();
 
       var f = fli
@@ -146,7 +146,7 @@ import { poly } from "../render/svg.js";
       // canv += poly(tranpoly(p0,p1,[
       //   [-0.3,0.6],[-0.15,1.0],[0,1.1],[0.15,1.0],[0.3,0.6]
       //   ]),{fil:"white",str:"rgba(130,130,130,0.8)",wid:1})
-      canv += poly(
+      canv.push(...poly(
         tranpoly(
           p0,
           p1,
@@ -164,7 +164,7 @@ import { poly } from "../render/svg.js";
           ]),
         ),
         { fil: "rgba(100,100,100,0.8)" },
-      );
+      ));
       return canv;
     };
 
@@ -172,7 +172,7 @@ import { poly } from "../render/svg.js";
       var args = args != undefined ? args : {};
       var fli = args.fli != undefined ? args.fli : false;
 
-      var canv = "";
+      var canv = [];
       var seed = random();
       var f = fli
         ? flipper
@@ -188,10 +188,10 @@ import { poly } from "../render/svg.js";
           0 + i * 0.3,
         ]);
       }
-      canv += poly(tranpoly(p0, p1, f(qlist1)), {
+      canv.push(...poly(tranpoly(p0, p1, f(qlist1)), {
         str: "rgba(100,100,100,0.5)",
         wid: 1,
-      });
+      }));
 
       return canv;
     };
@@ -211,7 +211,7 @@ import { poly } from "../render/svg.js";
         args.ite != undefined
           ? args.ite
           : function() {
-              return "";
+              return [];
             };
       var fli = args.fli != undefined ? args.fli : true;
       var ang =
@@ -234,7 +234,7 @@ import { poly } from "../render/svg.js";
       len = len.map(function(v) {
         return v * sca;
       });
-      var canv = "";
+      var canv = [];
       var sct = {
         0: { 1: { 2: {}, 5: { 6: {} }, 7: { 8: {} } }, 3: { 4: {} } },
       };
@@ -289,20 +289,20 @@ import { poly } from "../render/svg.js";
       }
 
       var cloth = function(plist, fun) {
-        var canv = "";
+        var canv = [];
         var tlist = bezmh(plist, 2);
         var [tlist1, tlist2] = expand(tlist, fun);
-        canv += poly(tlist1.concat(tlist2.reverse()).map(toGlobal), {
+        canv.push(...poly(tlist1.concat(tlist2.reverse()).map(toGlobal), {
           fil: "white",
-        });
-        canv += stroke(tlist1.map(toGlobal), {
+        }));
+        canv.push(...stroke(tlist1.map(toGlobal), {
           wid: 1,
           col: "rgba(100,100,100,0.5)",
-        });
-        canv += stroke(tlist2.map(toGlobal), {
+        }));
+        canv.push(...stroke(tlist2.map(toGlobal), {
           wid: 1,
           col: "rgba(100,100,100,0.6)",
-        });
+        }));
 
         return canv;
       };
@@ -327,22 +327,22 @@ import { poly } from "../render/svg.js";
         return sca * 7 * Math.pow(0.25 - Math.pow(x - 0.5, 2), 0.3);
       };
 
-      canv += ite(toGlobal(pts[8]), toGlobal(pts[6]), { fli: fli });
+      canv.push(...ite(toGlobal(pts[8]), toGlobal(pts[6]), { fli: fli }));
 
-      canv += cloth([pts[1], pts[7], pts[8]], fsleeve);
-      canv += cloth([pts[1], pts[0], pts[3], pts[4]], fbody);
-      canv += cloth([pts[1], pts[5], pts[6]], fsleeve);
-      canv += cloth([pts[1], pts[2]], fhead);
+      canv.push(...cloth([pts[1], pts[7], pts[8]], fsleeve));
+      canv.push(...cloth([pts[1], pts[0], pts[3], pts[4]], fbody));
+      canv.push(...cloth([pts[1], pts[5], pts[6]], fsleeve));
+      canv.push(...cloth([pts[1], pts[2]], fhead));
 
       var hlist = bezmh([pts[1], pts[2]], 2);
       var [hlist1, hlist2] = expand(hlist, fhead);
       hlist1.splice(0, Math.floor(hlist1.length * 0.1));
       hlist2.splice(0, Math.floor(hlist2.length * 0.95));
-      canv += poly(hlist1.concat(hlist2.reverse()).map(toGlobal), {
+      canv.push(...poly(hlist1.concat(hlist2.reverse()).map(toGlobal), {
         fil: "rgba(100,100,100,0.6)",
-      });
+      }));
 
-      canv += hat(toGlobal(pts[1]), toGlobal(pts[2]), { fli: fli });
+      canv.push(...hat(toGlobal(pts[1]), toGlobal(pts[2]), { fli: fli }));
 
       return canv;
     };

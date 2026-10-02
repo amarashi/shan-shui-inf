@@ -1,28 +1,39 @@
-// SVG output. Upstream draws everything through poly(), which returns a <polyline> string.
+// Display list to SVG markup. The output is character for character what upstream's
+// poly() and roof() sign produced.
 
-  export function poly(plist, args) {
-    var args = args != undefined ? args : {};
-    var xof = args.xof != undefined ? args.xof : 0;
-    var yof = args.yof != undefined ? args.yof : 0;
-    var fil = args.fil != undefined ? args.fil : "rgba(0,0,0,0)";
-    var str = args.str != undefined ? args.str : fil;
-    var wid = args.wid != undefined ? args.wid : 0;
+const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
 
-    var canv = "<polyline points='";
-    for (var i = 0; i < plist.length; i++) {
-      canv +=
-        " " +
-        (plist[i][0] + xof).toFixed(1) +
-        "," +
-        (plist[i][1] + yof).toFixed(1);
-    }
-    canv +=
-      "' style='fill:" +
-      fil +
-      ";stroke:" +
-      str +
-      ";stroke-width:" +
-      wid +
-      "'/>";
-    return canv;
+function polyline(r) {
+  var canv = "<polyline points='";
+  for (var i = 0; i < r.pts.length; i++) {
+    canv += " " + r.pts[i][0].toFixed(1) + "," + r.pts[i][1].toFixed(1);
   }
+  return canv + "' style='fill:" + r.fill + ";stroke:" + r.stroke + ";stroke-width:" + r.width + "'/>";
+}
+
+function text(r) {
+  return (
+    "<text font-size='" +
+    r.size +
+    "' font-family='Verdana' style='fill:" +
+    r.fill +
+    "' text-anchor='middle' transform='translate(" +
+    r.x +
+    "," +
+    r.y +
+    ") rotate(" +
+    r.rot +
+    ")'>" +
+    esc(r.text) +
+    "</text>"
+  );
+}
+
+/** @param {object[]} list display list @returns {string} SVG markup (no <svg> wrapper) */
+export function toSVG(list) {
+  var out = "";
+  for (var i = 0; i < list.length; i++) {
+    out += list[i].type === "text" ? text(list[i]) : polyline(list[i]);
+  }
+  return out;
+}

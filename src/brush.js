@@ -2,7 +2,7 @@
 import { random } from "./rng.js";
 import { loopNoise } from "./geom.js";
 import { Noise } from "./noise.js";
-import { poly } from "./render/svg.js";
+import { poly } from "./render/displaylist.js";
 
   export function stroke(ptlist, args) {
     var args = args != undefined ? args : {};
@@ -20,7 +20,7 @@ import { poly } from "./render/svg.js";
           };
 
     if (ptlist.length == 0) {
-      return "";
+      return [];
     }
     var vtxlist0 = [];
     var vtxlist1 = [];
@@ -207,26 +207,26 @@ import { poly } from "./render/svg.js";
         texlist[texlist.length - 1].push([x + ns[0], y + ns[1]]);
       }
     }
-    var canv = "";
+    var canv = [];
     //SHADE
     if (sha) {
       for (var j = 0; j < texlist.length; j += 1 + (sha != 0)) {
-        canv += stroke(
+        canv.push(...stroke(
           texlist[j].map(function(x) {
             return [x[0] + xof, x[1] + yof];
           }),
           { col: "rgba(100,100,100,0.1)", wid: sha },
-        );
+        ));
       }
     }
     //TEXTURE
     for (var j = 0 + sha; j < texlist.length; j += 1 + sha) {
-      canv += stroke(
+      canv.push(...stroke(
         texlist[j].map(function(x) {
           return [x[0] + xof, x[1] + yof];
         }),
         { col: col(j / texlist.length), wid: wid },
-      );
+      ));
     }
     return ret ? texlist : canv;
   };

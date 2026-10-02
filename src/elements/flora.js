@@ -3,7 +3,7 @@ import { random } from "../rng.js";
 import { blob, div, stroke } from "../brush.js";
 import { distance, loopNoise, normRand, PolyTools, randChoice, randGaussian } from "../geom.js";
 import { Noise } from "../noise.js";
-import { poly } from "../render/svg.js";
+import { poly } from "../render/displaylist.js";
 
   export const Tree = new function() {
     this.tree01 = function(x, y, args) {
@@ -28,7 +28,7 @@ import { poly } from "../render/svg.js";
       } else {
         leafcol = ["100", "100", "100", "0.5"];
       }
-      var canv = "";
+      var canv = [];
       var line1 = [];
       var line2 = [];
       for (var i = 0; i < reso; i++) {
@@ -36,7 +36,7 @@ import { poly } from "../render/svg.js";
         var ny = y - (i * hei) / reso;
         if (i >= reso / 4) {
           for (var j = 0; j < (reso - i) / 5; j++) {
-            canv += blob(
+            canv.push(...blob(
               nx + (random() - 0.5) * wid * 1.2 * (reso - i),
               ny + (random() - 0.5) * wid,
               {
@@ -54,15 +54,13 @@ import { poly } from "../render/svg.js";
                   (random() * 0.2 + parseFloat(leafcol[3])).toFixed(1) +
                   ")",
               },
-            );
+            ));
           }
         }
         line1.push([nx + (nslist[i][0] - 0.5) * wid - wid / 2, ny]);
         line2.push([nx + (nslist[i][1] - 0.5) * wid + wid / 2, ny]);
       }
-      canv +=
-        poly(line1, { fil: "none", str: col, wid: 1.5 }) +
-        poly(line2, { fil: "none", str: col, wid: 1.5 });
+      canv.push(...poly(line1, { fil: "none", str: col, wid: 1.5 }), ...poly(line2, { fil: "none", str: col, wid: 1.5 }));
       return canv;
     };
     this.tree02 = function(x, y, args) {
@@ -83,9 +81,9 @@ import { poly } from "../render/svg.js";
         leafcol = ["100", "100", "100", "0.5"];
       }
 
-      var canv = "";
+      var canv = [];
       for (var i = 0; i < clu; i++) {
-        canv += blob(
+        canv.push(...blob(
           x + randGaussian() * clu * 4,
           y + randGaussian() * clu * 4,
           {
@@ -100,7 +98,7 @@ import { poly } from "../render/svg.js";
             len: random() * hei * 0.75 + hei * 0.5,
             col: col,
           },
-        );
+        ));
       }
       return canv;
     };
@@ -132,8 +130,8 @@ import { poly } from "../render/svg.js";
       } else {
         leafcol = ["100", "100", "100", "0.5"];
       }
-      var canv = "";
-      var blobs = "";
+      var canv = [];
+      var blobs = [];
       var line1 = [];
       var line2 = [];
       for (var i = 0; i < reso; i++) {
@@ -145,7 +143,7 @@ import { poly } from "../render/svg.js";
               return Math.log(50 * x + 1) / 3.95;
             };
             var ox = random() * wid * 2 * shape((reso - i) / reso);
-            blobs += blob(
+            blobs.push(...blob(
               nx + ox * randChoice([-1, 1]),
               ny + (random() - 0.5) * wid * 2,
               {
@@ -163,7 +161,7 @@ import { poly } from "../render/svg.js";
                   (random() * 0.2 + parseFloat(leafcol[3])).toFixed(3) +
                   ")",
               },
-            );
+            ));
           }
         }
         line1.push([
@@ -176,8 +174,8 @@ import { poly } from "../render/svg.js";
         ]);
       }
       var lc = line1.concat(line2.reverse());
-      canv += poly(lc, { fil: "white", str: col, wid: 1.5 });
-      canv += blobs;
+      canv.push(...poly(lc, { fil: "white", str: col, wid: 1.5 }));
+      canv.push(...blobs);
       return canv;
     };
 
@@ -261,7 +259,7 @@ import { poly } from "../render/svg.js";
       var ang = args.ang != undefined ? args.ang : 0;
       var lea = args.lea != undefined ? args.lea : [true, 12];
 
-      var canv = "";
+      var canv = [];
       var twlist = [];
       var tl = 10;
       var hs = random() * 0.5 + 0.5;
@@ -286,18 +284,18 @@ import { poly } from "../render/svg.js";
 
         twlist.push([nx + tx, ny + ty]);
         if ((i == ((tl / 3) | 0) || i == (((tl * 2) / 3) | 0)) && dep > 0) {
-          canv += twig(nx + tx, ny + ty, dep - 1, {
+          canv.push(...twig(nx + tx, ny + ty, dep - 1, {
             ang: ang,
             sca: sca * 0.8,
             wid: wid,
             dir: dir * randChoice([-1, 1]),
             lea: lea,
-          });
+          }));
         }
         if (i == tl - 1 && lea[0] == true) {
           for (var j = 0; j < 5; j++) {
             var dj = (j - 2.5) * 5;
-            canv += blob(
+            canv.push(...blob(
               nx + tx + Math.cos(ang) * dj * wid,
               ny + ty + (Math.sin(ang) * dj - lea[1] / (dep + 1)) * wid,
               {
@@ -312,17 +310,17 @@ import { poly } from "../render/svg.js";
                     : -Math.pow(Math.sin((x - 2) * Math.PI * (x - 2)), 0.5);
                 },
               },
-            );
+            ));
           }
         }
       }
-      canv += stroke(twlist, {
+      canv.push(...stroke(twlist, {
         wid: 1,
         fun: function(x) {
           return Math.cos((x * Math.PI) / 2);
         },
         col: "rgba(100,100,100,0.5)",
-      });
+      }));
       return canv;
     };
 
@@ -336,7 +334,7 @@ import { poly } from "../render/svg.js";
             : -Math.pow(Math.sin((x + 1) * Math.PI), 0.5);
         };
         var reso = 20.0;
-        var canv = "";
+        var canv = [];
 
         var lalist = [];
         for (var i = 0; i < reso + 1; i++) {
@@ -362,7 +360,7 @@ import { poly } from "../render/svg.js";
           brklist.push([nx, ny]);
         }
         var fr = random();
-        canv += stroke(brklist, {
+        canv.push(...stroke(brklist, {
           wid: 0.8,
           noi: 0,
           col: "rgba(100,100,100,0.4)",
@@ -370,11 +368,11 @@ import { poly } from "../render/svg.js";
           fun: function(x) {
             return Math.sin((x + fr) * Math.PI * 3);
           },
-        });
+        }));
 
         return canv;
       }
-      var canv = "";
+      var canv = [];
 
       for (var i = 2; i < trlist[0].length - 1; i++) {
         var a0 = Math.atan2(
@@ -389,20 +387,20 @@ import { poly } from "../render/svg.js";
         var nx = trlist[0][i][0] * (1 - p) + trlist[1][i][0] * p;
         var ny = trlist[0][i][1] * (1 - p) + trlist[1][i][1] * p;
         if (random() < 0.2) {
-          canv += blob(nx + x, ny + y, {
+          canv.push(...blob(nx + x, ny + y, {
             noi: 1,
             len: 15,
             wid: 6 - Math.abs(p - 0.5) * 10,
             ang: (a0 + a1) / 2,
             col: "rgba(100,100,100,0.6)",
-          });
+          }));
         } else {
-          canv += bark(
+          canv.push(...bark(
             nx + x,
             ny + y,
             5 - Math.abs(p - 0.5) * 10,
             (a0 + a1) / 2,
-          );
+          ));
         }
 
         if (random() < 0.05) {
@@ -412,7 +410,7 @@ import { poly } from "../render/svg.js";
             [trlist[1][i][0], trlist[1][i][1], a1],
           ]);
           for (var j = 0; j < jl; j++) {
-            canv += blob(
+            canv.push(...blob(
               xya[0] + x + Math.cos(xya[2]) * (j - jl / 2) * 4,
               xya[1] + y + Math.sin(xya[2]) * (j - jl / 2) * 4,
               {
@@ -421,7 +419,7 @@ import { poly } from "../render/svg.js";
                 ang: a0 + Math.PI / 2,
                 col: "rgba(100,100,100,0.6)",
               },
-            );
+            ));
           }
         }
       }
@@ -443,12 +441,12 @@ import { poly } from "../render/svg.js";
           rglist[i][j][1] +=
             (Noise.noise(i, j * 0.1, 2) - 0.5) * (15 + 5 * randGaussian());
         }
-        canv += stroke(
+        canv.push(...stroke(
           rglist[i].map(function(v) {
             return [v[0] + x, v[1] + y];
           }),
           { wid: 1.5, col: "rgba(100,100,100,0.7)", out: 0 },
-        );
+        ));
       }
       return canv;
     };
@@ -460,12 +458,12 @@ import { poly } from "../render/svg.js";
       var col = args.col != undefined ? args.col : "rgba(100,100,100,0.5)";
       var noi = args.noi != undefined ? args.noi : 0.5;
 
-      var canv = "";
-      var txcanv = "";
-      var twcanv = "";
+      var canv = [];
+      var txcanv = [];
+      var twcanv = [];
 
       var trlist = branch({ hei: hei, wid: wid, ang: -Math.PI / 2 });
-      txcanv += barkify(x, y, trlist);
+      txcanv.push(...barkify(x, y, trlist));
       trlist = trlist[0].concat(trlist[1].reverse());
 
       var trmlist = [];
@@ -489,11 +487,11 @@ import { poly } from "../render/svg.js";
           var foff = function(v) {
             return [v[0] + trlist[i][0], v[1] + trlist[i][1]];
           };
-          txcanv += barkify(x, y, [brlist[0].map(foff), brlist[1].map(foff)]);
+          txcanv.push(...barkify(x, y, [brlist[0].map(foff), brlist[1].map(foff)]));
 
           for (var j = 0; j < brlist[0].length; j++) {
             if (random() < 0.2 || j == brlist[0].length - 1) {
-              twcanv += twig(
+              twcanv.push(...twig(
                 brlist[0][j][0] + trlist[i][0] + x,
                 brlist[0][j][1] + trlist[i][1] + y,
                 1,
@@ -503,7 +501,7 @@ import { poly } from "../render/svg.js";
                   sca: (0.5 * hei) / 300,
                   dir: ba > -Math.PI / 2 ? 1 : -1,
                 },
-              );
+              ));
             }
           }
           brlist = brlist[0].concat(brlist[1].reverse());
@@ -516,11 +514,11 @@ import { poly } from "../render/svg.js";
           trmlist.push(trlist[i]);
         }
       }
-      canv += poly(trmlist, { xof: x, yof: y, fil: "white", str: col, wid: 0 });
+      canv.push(...poly(trmlist, { xof: x, yof: y, fil: "white", str: col, wid: 0 }));
 
       trmlist.splice(0, 1);
       trmlist.splice(trmlist.length - 1, 1);
-      canv += stroke(
+      canv.push(...stroke(
         trmlist.map(function(v) {
           return [v[0] + x, v[1] + y];
         }),
@@ -534,10 +532,10 @@ import { poly } from "../render/svg.js";
           noi: 0.9,
           out: 0,
         },
-      );
+      ));
 
-      canv += txcanv;
-      canv += twcanv;
+      canv.push(...txcanv);
+      canv.push(...twcanv);
       return canv;
     };
 
@@ -548,12 +546,12 @@ import { poly } from "../render/svg.js";
       var col = args.col != undefined ? args.col : "rgba(100,100,100,0.5)";
       var noi = args.noi != undefined ? args.noi : 0.5;
 
-      var canv = "";
-      var txcanv = "";
-      var twcanv = "";
+      var canv = [];
+      var txcanv = [];
+      var twcanv = [];
 
       var trlist = branch({ hei: hei, wid: wid, ang: -Math.PI / 2, ben: 0 });
-      txcanv += barkify(x, y, trlist);
+      txcanv.push(...barkify(x, y, trlist));
       trlist = trlist[0].concat(trlist[1].reverse());
 
       var trmlist = [];
@@ -586,7 +584,7 @@ import { poly } from "../render/svg.js";
 
           for (var j = 0; j < brlist[0].length; j++) {
             if (j % 20 == 0 || j == brlist[0].length - 1) {
-              twcanv += twig(
+              twcanv.push(...twig(
                 brlist[0][j][0] + trlist[i][0] + x,
                 brlist[0][j][1] + trlist[i][1] + y,
                 0,
@@ -597,7 +595,7 @@ import { poly } from "../render/svg.js";
                   dir: ba > -Math.PI / 2 ? 1 : -1,
                   lea: [true, 5],
                 },
-              );
+              ));
             }
           }
           brlist = brlist[0].concat(brlist[1].reverse());
@@ -611,11 +609,11 @@ import { poly } from "../render/svg.js";
         }
       }
 
-      canv += poly(trmlist, { xof: x, yof: y, fil: "white", str: col, wid: 0 });
+      canv.push(...poly(trmlist, { xof: x, yof: y, fil: "white", str: col, wid: 0 }));
 
       trmlist.splice(0, 1);
       trmlist.splice(trmlist.length - 1, 1);
-      canv += stroke(
+      canv.push(...stroke(
         trmlist.map(function(v) {
           return [v[0] + x, v[1] + y];
         }),
@@ -629,10 +627,10 @@ import { poly } from "../render/svg.js";
           noi: 0.9,
           out: 0,
         },
-      );
+      ));
 
-      canv += txcanv;
-      canv += twcanv;
+      canv.push(...txcanv);
+      canv.push(...twcanv);
       return canv;
     };
 
@@ -643,9 +641,9 @@ import { poly } from "../render/svg.js";
       var col = args.col != undefined ? args.col : "rgba(100,100,100,0.5)";
       var noi = args.noi != undefined ? args.noi : 0.5;
 
-      var canv = "";
-      var txcanv = "";
-      var twcanv = "";
+      var canv = [];
+      var txcanv = [];
+      var twcanv = [];
 
       function fracTree(xoff, yoff, dep, args) {
         var args = args != undefined ? args : {};
@@ -661,7 +659,7 @@ import { poly } from "../render/svg.js";
           ben: ben,
           det: hei / 20,
         });
-        txcanv += barkify(xoff, yoff, trlist);
+        txcanv.push(...barkify(xoff, yoff, trlist));
         trlist = trlist[0].concat(trlist[1].reverse());
 
         var trmlist = [];
@@ -694,7 +692,7 @@ import { poly } from "../render/svg.js";
 
             for (var j = 0; j < brlist.length; j++) {
               if (random() < 0.03) {
-                twcanv += twig(
+                twcanv.push(...twig(
                   brlist[j][0] + trlist[i][0] + xoff,
                   brlist[j][1] + trlist[i][1] + yoff,
                   2,
@@ -704,7 +702,7 @@ import { poly } from "../render/svg.js";
                     dir: ba > 0 ? 1 : -1,
                     lea: [false, 0],
                   },
-                );
+                ));
               }
             }
 
@@ -727,11 +725,11 @@ import { poly } from "../render/svg.js";
         ben: 0,
       });
 
-      canv += poly(trmlist, { xof: x, yof: y, fil: "white", str: col, wid: 0 });
+      canv.push(...poly(trmlist, { xof: x, yof: y, fil: "white", str: col, wid: 0 }));
 
       trmlist.splice(0, 1);
       trmlist.splice(trmlist.length - 1, 1);
-      canv += stroke(
+      canv.push(...stroke(
         trmlist.map(function(v) {
           return [v[0] + x, v[1] + y];
         }),
@@ -745,10 +743,10 @@ import { poly } from "../render/svg.js";
           noi: 0.9,
           out: 0,
         },
-      );
+      ));
 
-      canv += txcanv;
-      canv += twcanv;
+      canv.push(...txcanv);
+      canv.push(...twcanv);
       return canv;
     };
 
@@ -779,7 +777,7 @@ import { poly } from "../render/svg.js";
       } else {
         leafcol = ["100", "100", "100", "1"];
       }
-      var canv = "";
+      var canv = [];
       var line1 = [];
       var line2 = [];
       var T = [];
@@ -839,7 +837,7 @@ import { poly } from "../render/svg.js";
         var m = PolyTools.midPt(T[k]);
         var c = (Noise.noise(m[0] * 0.02, m[1] * 0.02) * 200 + 50) | 0;
         var co = "rgba(" + c + "," + c + "," + c + ",0.8)";
-        canv += poly(T[k], { fil: co, str: co, wid: 0 });
+        canv.push(...poly(T[k], { fil: co, str: co, wid: 0 }));
       }
       return canv;
     };
@@ -851,9 +849,9 @@ import { poly } from "../render/svg.js";
       var col = args.col != undefined ? args.col : "rgba(100,100,100,0.5)";
       var noi = args.noi != undefined ? args.noi : 0.5;
 
-      var canv = "";
-      var txcanv = "";
-      var twcanv = "";
+      var canv = [];
+      var txcanv = [];
+      var twcanv = [];
 
       var ang = normRand(-1, 1) * Math.PI * 0.2;
 
@@ -908,16 +906,16 @@ import { poly } from "../render/svg.js";
           trmlist[i][1] = spt[1] + d * Math.sin(a + ang);
         }
 
-        var tcanv = "";
-        tcanv += stroke(trmlist, {
+        var tcanv = [];
+        tcanv.push(...stroke(trmlist, {
           fun: fun,
           wid: 0.8,
           col: "rgba(100,100,100,0.5)",
-        });
+        }));
         if (dep != 0) {
           var nben = ben + randChoice([-1, 1]) * Math.PI * 0.001 * dep * dep;
           if (random() < 0.5) {
-            tcanv += fracTree(ept[0], ept[1], dep - 1, {
+            tcanv.push(...fracTree(ept[0], ept[1], dep - 1, {
               ang:
                 ang +
                 ben +
@@ -926,8 +924,8 @@ import { poly } from "../render/svg.js";
                   0.2,
               len: len * normRand(0.8, 0.9),
               ben: nben,
-            });
-            tcanv += fracTree(ept[0], ept[1], dep - 1, {
+            }));
+            tcanv.push(...fracTree(ept[0], ept[1], dep - 1, {
               ang:
                 ang +
                 ben +
@@ -936,13 +934,13 @@ import { poly } from "../render/svg.js";
                   0.2,
               len: len * normRand(0.8, 0.9),
               ben: nben,
-            });
+            }));
           } else {
-            tcanv += fracTree(ept[0], ept[1], dep - 1, {
+            tcanv.push(...fracTree(ept[0], ept[1], dep - 1, {
               ang: ang + ben,
               len: len * normRand(0.8, 0.9),
               ben: nben,
-            });
+            }));
           }
         }
         return tcanv;
@@ -950,23 +948,23 @@ import { poly } from "../render/svg.js";
 
       for (var i = 0; i < trlist.length; i++) {
         if (random() < 0.2) {
-          twcanv += fracTree(
+          twcanv.push(...fracTree(
             x + trlist[i][0],
             y + trlist[i][1],
             Math.floor(4 * random()),
             { hei: 20, ang: -Math.PI / 2 - ang * random() },
-          );
+          ));
         } else if (i == Math.floor(trlist.length / 2)) {
-          twcanv += fracTree(x + trlist[i][0], y + trlist[i][1], 3, {
+          twcanv.push(...fracTree(x + trlist[i][0], y + trlist[i][1], 3, {
             hei: 25,
             ang: -Math.PI / 2 + ang,
-          });
+          }));
         }
       }
 
-      canv += poly(trlist, { xof: x, yof: y, fil: "white", str: col, wid: 0 });
+      canv.push(...poly(trlist, { xof: x, yof: y, fil: "white", str: col, wid: 0 }));
 
-      canv += stroke(
+      canv.push(...stroke(
         trlist.map(function(v) {
           return [v[0] + x, v[1] + y];
         }),
@@ -980,10 +978,10 @@ import { poly } from "../render/svg.js";
           noi: 0.9,
           out: 0,
         },
-      );
+      ));
 
-      canv += txcanv;
-      canv += twcanv;
+      canv.push(...txcanv);
+      canv.push(...twcanv);
       //console.log(canv)
       return canv;
     };

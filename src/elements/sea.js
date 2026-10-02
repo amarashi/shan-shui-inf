@@ -8,7 +8,7 @@ import { Noise } from "../noise.js";
     var hei = args.hei != undefined ? args.hei : 2;
     var len = args.len != undefined ? args.len : 800;
     var clu = args.clu != undefined ? args.clu : 10;
-    var canv = "";
+    var canv = [];
 
     var ptlist = [];
     var yk = 0;
@@ -27,7 +27,7 @@ import { Noise } from "../noise.js";
     }
 
     for (var j = 1; j < ptlist.length; j += 1) {
-      canv += stroke(
+      canv.push(...stroke(
         ptlist[j].map(function(x) {
           return [x[0] + xoff, x[1] + yoff];
         }),
@@ -36,7 +36,7 @@ import { Noise } from "../noise.js";
             "rgba(100,100,100," + (0.3 + random() * 0.3).toFixed(3) + ")",
           wid: 1,
         },
-      );
+      ));
     }
 
     return canv;

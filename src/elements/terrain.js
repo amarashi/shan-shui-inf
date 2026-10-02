@@ -3,7 +3,7 @@ import { random } from "../rng.js";
 import { div, stroke, texture } from "../brush.js";
 import { loopNoise, normRand, PolyTools, randChoice } from "../geom.js";
 import { Noise } from "../noise.js";
-import { poly } from "../render/svg.js";
+import { poly } from "../render/displaylist.js";
 import { Tree } from "./flora.js";
 import { Arch } from "./structures.js";
 
@@ -58,17 +58,17 @@ import { Arch } from "./structures.js";
           }
         }
       }
-      var canv = "";
+      var canv = [];
       for (var i = 0; i < ftlist.length; i++) {
-        canv += poly(ftlist[i], {
+        canv.push(...poly(ftlist[i], {
           xof: xof,
           yof: yof,
           fil: "white",
           str: "none",
-        });
+        }));
       }
       for (var j = 0; j < ftlist.length; j++) {
-        canv += stroke(
+        canv.push(...stroke(
           ftlist[j].map(function(x) {
             return [x[0] + xof, x[1] + yof];
           }),
@@ -79,7 +79,7 @@ import { Arch } from "./structures.js";
               ")",
             wid: 1,
           },
-        );
+        ));
       }
       return ret ? ftlist : canv;
     };
@@ -95,7 +95,7 @@ import { Arch } from "./structures.js";
 
       seed = seed != undefined ? seed : 0;
 
-      var canv = "";
+      var canv = [];
 
       var ptlist = [];
       var h = hei;
@@ -129,7 +129,7 @@ import { Arch } from "./structures.js";
         }
         for (var i = 0; i < veglist.length; i++) {
           if (proofRule(veglist, i)) {
-            canv += treeFunc(veglist[i][0], veglist[i][1]);
+            canv.push(...treeFunc(veglist[i][0], veglist[i][1]));
           }
         }
       }
@@ -156,28 +156,28 @@ import { Arch } from "./structures.js";
       );
 
       //WHITE BG
-      canv += poly(ptlist[0].concat([[0, reso[0] * 4]]), {
+      canv.push(...poly(ptlist[0].concat([[0, reso[0] * 4]]), {
         xof: xoff,
         yof: yoff,
         fil: "white",
         str: "none",
-      });
+      }));
       //OUTLINE
-      canv += stroke(
+      canv.push(...stroke(
         ptlist[0].map(function(x) {
           return [x[0] + xoff, x[1] + yoff];
         }),
         { col: "rgba(100,100,100,0.3)", noi: 1, wid: 3 },
-      );
+      ));
 
-      canv += foot(ptlist, { xof: xoff, yof: yoff });
-      canv += texture(ptlist, {
+      canv.push(...foot(ptlist, { xof: xoff, yof: yoff }));
+      canv.push(...texture(ptlist, {
         xof: xoff,
         yof: yoff,
         tex: tex,
         sha: randChoice([0, 0, 0, 0, 5]),
         col: col,
-      });
+      }));
 
       //TOP
       vegetate(
@@ -286,7 +286,7 @@ import { Arch } from "./structures.js";
               sto: randChoice([1, 1, 1, 2, 2]),
             });
           } else {
-            return "";
+            return [];
           }
         },
         function(i, j) {
@@ -373,7 +373,7 @@ import { Arch } from "./structures.js";
 
       seed = seed != undefined ? seed : 0;
 
-      var canv = "";
+      var canv = [];
       var ptlist = [];
       var reso = [5, 50];
       var hoff = 0;
@@ -408,22 +408,22 @@ import { Arch } from "./structures.js";
       }
 
       //WHITE BG
-      canv += poly(ptlist[0].concat([[0, reso[0] * 4]]), {
+      canv.push(...poly(ptlist[0].concat([[0, reso[0] * 4]]), {
         xof: xoff,
         yof: yoff,
         fil: "white",
         str: "none",
-      });
+      }));
       //OUTLINE
-      canv += stroke(
+      canv.push(...stroke(
         ptlist[0].map(function(x) {
           return [x[0] + xoff, x[1] + yoff];
         }),
         { col: "rgba(100,100,100,0.3)", noi: 1, wid: 3 },
-      );
+      ));
 
       //canv += foot(ptlist,{xof:xoff,yof:yoff})
-      canv += texture(ptlist, {
+      canv.push(...texture(ptlist, {
         xof: xoff,
         yof: yoff,
         tex: tex,
@@ -435,7 +435,7 @@ import { Arch } from "./structures.js";
             return 0.9 - 0.4 * random();
           }
         },
-      });
+      }));
       var grlist1 = [];
       var grlist2 = [];
       for (var i = 0; i < flat.length; i += 2) {
@@ -475,17 +475,17 @@ import { Arch } from "./structures.js";
         canv += poly(ptlist[i],{xof:xoff,yof:yoff,str:"red",fil:"none",wid:2})
       }
  */
-      canv += poly(grlist, {
+      canv.push(...poly(grlist, {
         xof: xoff,
         yof: yoff,
         str: "none",
         fil: "white",
         wid: 2,
-      });
-      canv += stroke(grlist.map(x => [x[0] + xoff, x[1] + yoff]), {
+      }));
+      canv.push(...stroke(grlist.map(x => [x[0] + xoff, x[1] + yoff]), {
         wid: 3,
         col: "rgba(100,100,100,0.2)",
-      });
+      }));
 
       var bound = function(plist) {
         var xmin;
@@ -509,18 +509,18 @@ import { Arch } from "./structures.js";
         return { xmin: xmin, xmax: xmax, ymin: ymin, ymax: ymax };
       };
 
-      canv += Mount.flatDec(xoff, yoff, bound(grlist));
+      canv.push(...Mount.flatDec(xoff, yoff, bound(grlist)));
 
       return canv;
     };
 
     this.flatDec = function(xoff, yoff, grbd) {
-      var canv = "";
+      var canv = [];
 
       var tt = randChoice([0, 0, 1, 2, 3, 4]);
 
       for (var j = 0; j < random() * 5; j++) {
-        canv += Mount.rock(
+        canv.push(...Mount.rock(
           xoff + normRand(grbd.xmin, grbd.xmax),
           yoff + (grbd.ymin + grbd.ymax) / 2 + normRand(-10, 10) + 10,
           random() * 100,
@@ -529,23 +529,23 @@ import { Arch } from "./structures.js";
             hei: 10 + random() * 20,
             sha: 2,
           },
-        );
+        ));
       }
       for (var j = 0; j < randChoice([0, 0, 1, 2]); j++) {
         var xr = xoff + normRand(grbd.xmin, grbd.xmax);
         var yr = yoff + (grbd.ymin + grbd.ymax) / 2 + normRand(-5, 5) + 20;
         for (var k = 0; k < 2 + random() * 3; k++) {
-          canv += Tree.tree08(
+          canv.push(...Tree.tree08(
             xr + Math.min(Math.max(normRand(-30, 30), grbd.xmin), grbd.xmax),
             yr,
             { hei: 60 + random() * 40 },
-          );
+          ));
         }
       }
 
       if (tt == 0) {
         for (var j = 0; j < random() * 3; j++) {
-          canv += Mount.rock(
+          canv.push(...Mount.rock(
             xoff + normRand(grbd.xmin, grbd.xmax),
             yoff + (grbd.ymin + grbd.ymax) / 2 + normRand(-5, 5) + 20,
             random() * 100,
@@ -554,7 +554,7 @@ import { Arch } from "./structures.js";
               hei: 40 + random() * 20,
               sha: 5,
             },
-          );
+          ));
         }
       }
       if (tt == 1) {
@@ -563,14 +563,14 @@ import { Arch } from "./structures.js";
         var xmin = grbd.xmin * (1 - pmin) + grbd.xmax * pmin;
         var xmax = grbd.xmin * (1 - pmax) + grbd.xmax * pmax;
         for (var i = xmin; i < xmax; i += 30) {
-          canv += Tree.tree05(
+          canv.push(...Tree.tree05(
             xoff + i + 20 * normRand(-1, 1),
             yoff + (grbd.ymin + grbd.ymax) / 2 + 20,
             { hei: 100 + random() * 200 },
-          );
+          ));
         }
         for (var j = 0; j < random() * 4; j++) {
-          canv += Mount.rock(
+          canv.push(...Mount.rock(
             xoff + normRand(grbd.xmin, grbd.xmax),
             yoff + (grbd.ymin + grbd.ymax) / 2 + normRand(-5, 5) + 20,
             random() * 100,
@@ -579,15 +579,15 @@ import { Arch } from "./structures.js";
               hei: 40 + random() * 20,
               sha: 5,
             },
-          );
+          ));
         }
       } else if (tt == 2) {
         for (var i = 0; i < randChoice([1, 1, 1, 1, 2, 2, 3]); i++) {
           var xr = normRand(grbd.xmin, grbd.xmax);
           var yr = (grbd.ymin + grbd.ymax) / 2;
-          canv += Tree.tree04(xoff + xr, yoff + yr + 20, {});
+          canv.push(...Tree.tree04(xoff + xr, yoff + yr + 20, {}));
           for (var j = 0; j < random() * 2; j++) {
-            canv += Mount.rock(
+            canv.push(...Mount.rock(
               xoff +
                 Math.max(
                   grbd.xmin,
@@ -600,16 +600,16 @@ import { Arch } from "./structures.js";
                 hei: 40 + random() * 20,
                 sha: 5,
               },
-            );
+            ));
           }
         }
       } else if (tt == 3) {
         for (var i = 0; i < randChoice([1, 1, 1, 1, 2, 2, 3]); i++) {
-          canv += Tree.tree06(
+          canv.push(...Tree.tree06(
             xoff + normRand(grbd.xmin, grbd.xmax),
             yoff + (grbd.ymin + grbd.ymax) / 2,
             { hei: 60 + random() * 60 },
-          );
+          ));
         }
       } else if (tt == 4) {
         var pmin = random() * 0.5;
@@ -617,24 +617,24 @@ import { Arch } from "./structures.js";
         var xmin = grbd.xmin * (1 - pmin) + grbd.xmax * pmin;
         var xmax = grbd.xmin * (1 - pmax) + grbd.xmax * pmax;
         for (var i = xmin; i < xmax; i += 20) {
-          canv += Tree.tree07(
+          canv.push(...Tree.tree07(
             xoff + i + 20 * normRand(-1, 1),
             yoff + (grbd.ymin + grbd.ymax) / 2 + normRand(-1, 1) + 0,
             { hei: normRand(40, 80) },
-          );
+          ));
         }
       }
 
       for (var i = 0; i < 50 * random(); i++) {
-        canv += Tree.tree02(
+        canv.push(...Tree.tree02(
           xoff + normRand(grbd.xmin, grbd.xmax),
           yoff + normRand(grbd.ymin, grbd.ymax),
-        );
+        ));
       }
 
       var ts = randChoice([0, 0, 0, 0, 1]);
       if (ts == 1 && tt != 4) {
-        canv += Arch.arch01(
+        canv.push(...Arch.arch01(
           xoff + normRand(grbd.xmin, grbd.xmax),
           yoff + (grbd.ymin + grbd.ymax) / 2 + 20,
           random(),
@@ -643,7 +643,7 @@ import { Arch } from "./structures.js";
             hei: normRand(80, 100),
             per: random(),
           },
-        );
+        ));
       }
 
       return canv;
@@ -656,7 +656,7 @@ import { Arch } from "./structures.js";
       var seg = args.seg != undefined ? args.seg : 5;
 
       seed = seed != undefined ? seed : 0;
-      var canv = "";
+      var canv = [];
       var span = 10;
 
       var ptlist = [];
@@ -693,11 +693,11 @@ import { Arch } from "./structures.js";
           var c = (Noise.noise(x * 0.02, y * 0.02, yoff) * 55 + 200) | 0;
           return "rgb(" + c + "," + c + "," + c + ")";
         };
-        canv += poly(ptlist[i], {
+        canv.push(...poly(ptlist[i], {
           fil: getCol(...ptlist[i][ptlist[i].length - 1]),
           str: "none",
           wid: 1,
-        });
+        }));
 
         var T = PolyTools.triangulate(ptlist[i], {
           area: 100,
@@ -707,7 +707,7 @@ import { Arch } from "./structures.js";
         for (var k = 0; k < T.length; k++) {
           var m = PolyTools.midPt(T[k]);
           var co = getCol(m[0], m[1]);
-          canv += poly(T[k], { fil: co, str: co, wid: 1 });
+          canv.push(...poly(T[k], { fil: co, str: co, wid: 1 }));
         }
       }
       return canv;
@@ -723,7 +723,7 @@ import { Arch } from "./structures.js";
 
       seed = seed != undefined ? seed : 0;
 
-      var canv = "";
+      var canv = [];
 
       var reso = [10, 50];
       var ptlist = [];
@@ -765,20 +765,20 @@ import { Arch } from "./structures.js";
       }
 
       //WHITE BG
-      canv += poly(ptlist[0].concat([[0, 0]]), {
+      canv.push(...poly(ptlist[0].concat([[0, 0]]), {
         xof: xoff,
         yof: yoff,
         fil: "white",
         str: "none",
-      });
+      }));
       //OUTLINE
-      canv += stroke(
+      canv.push(...stroke(
         ptlist[0].map(function(x) {
           return [x[0] + xoff, x[1] + yoff];
         }),
         { col: "rgba(100,100,100,0.3)", noi: 1, wid: 3 },
-      );
-      canv += texture(ptlist, {
+      ));
+      canv.push(...texture(ptlist, {
         xof: xoff,
         yof: yoff,
         tex: tex,
@@ -796,7 +796,7 @@ import { Arch } from "./structures.js";
             return 0.85 - 0.15 * random();
           }
         },
-      });
+      }));
 
       for (var i = 0; i < reso[0]; i++) {
         //canv += poly(ptlist[i],{xof:xoff,yof:yoff,fil:"none",str:"red",wid:2})
