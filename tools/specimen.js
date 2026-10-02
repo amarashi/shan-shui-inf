@@ -11,7 +11,13 @@
 // Output: out/specimen-<name>.png
 import { mkdirSync } from "node:fs";
 import { parseArgs } from "node:util";
+import { createNoise, withNoise } from "../src/noise.js";
+import { palettes } from "../src/render/palette.js";
+import { toSVG } from "../src/render/svg.js";
+import { stream, withRandom } from "../src/rng.js";
 import { createWorld, WINDX, WINDY } from "../src/world/chunks.js";
+import { ENGINE_ELEMENTS } from "./lib/specimens.js";
+import "./lib/specimens-all.js";
 import { paperDataUrl } from "./lib/paper.js";
 import { launch, openUpstream } from "./lib/upstream.js";
 
@@ -83,23 +89,53 @@ const { values, positionals } = parseArgs({
     w: { type: "string" }, // zoom: show this many world units across (default the whole view)
     y: { type: "string", default: "0" }, // top of the zoomed view
     count: { type: "string", default: String(COUNT) },
+    palette: { type: "string", default: "ink" },
   },
 });
 const name = positionals[0];
-const all = () => `upstream elements: ${Object.keys(ELEMENTS).join(", ")}\ncoast layers: ${Object.keys(COAST).join(", ")}`;
+const all = () =>
+  `upstream elements: ${Object.keys(ELEMENTS).join(", ")}\nengine elements: ${Object.keys(ENGINE_ELEMENTS).join(", ")}\ncoast layers: ${Object.keys(COAST).join(", ")}`;
 if (values.list || !name) {
   console.log(all());
   process.exit(values.list ? 0 : 2);
 }
-if (!ELEMENTS[name] && !COAST[name]) {
+if (!ELEMENTS[name] && !COAST[name] && !ENGINE_ELEMENTS[name]) {
   console.error(`"${name}" is not available yet.\n${all()}`);
   process.exit(2);
 }
 mkdirSync(new URL("../out/", import.meta.url), { recursive: true });
-const out = `out/specimen-${name}${values.layers ? "-" + values.layers.replaceAll(",", "+") : ""}.png`;
+const out = `out/specimen-${name}${values.layers ? "-" + values.layers.replaceAll(",", "+") : ""}${values.palette !== "ink" ? "-" + values.palette : ""}.png`;
 const browser = await launch();
 
-if (ELEMENTS[name]) {
+const palette = palettes[values.palette];
+
+if (ENGINE_ELEMENTS[name]) {
+  const el = ENGINE_ELEMENTS[name];
+  const [bx, by, bw, bh] = el.box;
+  const count = Number(values.count);
+  const cellH = Math.round((CELL_PX * bh) / bw);
+  const labelH = 24;
+  const rows = Math.ceil(count / COLS);
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${COLS * CELL_PX}" height="${rows * (cellH + labelH)}" style="display:block">`;
+  const noise = createNoise(stream(name, "noise"));
+  for (let i = 0; i < count; i++) {
+    const list = withNoise(noise, () => withRandom(stream(name, i), () => el.draw(...(el.at ?? [0, 0]), i)));
+    const cx = (i % COLS) * CELL_PX;
+    const cy = Math.floor(i / COLS) * (cellH + labelH);
+    svg +=
+      `<text x="${cx + 6}" y="${cy + 17}" font-family="sans-serif" font-size="14" fill="#555">${name}:${i}</text>` +
+      `<rect x="${cx + 0.5}" y="${cy + labelH + 0.5}" width="${CELL_PX - 1}" height="${cellH - 1}" fill="none" stroke="rgba(0,0,0,0.12)"/>` +
+      `<svg x="${cx}" y="${cy + labelH}" width="${CELL_PX}" height="${cellH}" viewBox="${bx} ${by} ${bw} ${bh}" style="mix-blend-mode:multiply">` +
+      toSVG(list, palette) +
+      `</svg>`;
+  }
+  svg += "</svg>";
+  const page = await browser.newPage({ viewport: { width: COLS * CELL_PX + 20, height: 900 } });
+  await page.setContent(
+    `<body style="margin:0;background:url(${await paperDataUrl()})"><div id="SPEC" style="display:inline-block">${svg}</div></body>`,
+  );
+  await page.locator("#SPEC").screenshot({ path: out });
+} else if (ELEMENTS[name]) {
   const el = ELEMENTS[name];
   // The page seed fixes the Noise table, which upstream fills on first use and never reseeds.
   const page = await openUpstream(browser, values.seed);
@@ -143,7 +179,7 @@ if (ELEMENTS[name]) {
   let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${ncols * cellW}" height="${rows * (cellH + labelH)}" style="display:block">`;
   for (let i = 0; i < count; i++) {
     const seed = `${name}:${i}`;
-    const world = createWorld({ seed, scene: "coast", layers: layers ?? undefined });
+    const world = createWorld({ seed, scene: "coast", layers: layers ?? undefined, palette });
     world.MEM.cursx = x0;
     world.update();
     let guides = "";

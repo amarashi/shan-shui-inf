@@ -479,6 +479,14 @@ import { Man } from "./figures.js";
       return canv;
     };
 
+    // Exposed for the coastal structures (src/elements/buildings.js), which reuse
+    // upstream's brushwork for walls, rails and roofs.
+    this.hut = hut;
+    this.box = box;
+    this.deco = deco;
+    this.rail = rail;
+    this.roof = roof;
+
     this.arch01 = function(xoff, yoff, seed, args) {
       var args = args != undefined ? args : {};
       var hei = args.hei != undefined ? args.hei : 70;
