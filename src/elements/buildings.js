@@ -122,7 +122,7 @@ export function jetty(x, y, args) {
   var dir = args.dir || 1;
   var near = args.near || 0.5; // scale at the shore
   var canv = [];
-  var w = 6 * near;
+  var w = 10 * near + 2;
   var x1 = x + dir * len * 0.35;
   var y1 = y - len;
   var deckA = [[x - w, y], [x1 - w * 0.5, y1]];

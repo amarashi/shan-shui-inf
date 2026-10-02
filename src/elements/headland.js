@@ -37,6 +37,21 @@ export function headlandParams(seg, coast) {
 }
 
 /**
+ * The silhouette of a headland at x: rises from the waterline on each flank to the plateau.
+ * Shared by the headland and anything placed on it (a lighthouse).
+ */
+export function headlandTop(seg, coast, x, hp) {
+  hp = hp || headlandParams(seg, coast);
+  var w = seg.x1 - seg.x0;
+  var bL = hp.steepRight ? hp.gentle : hp.steep;
+  var bR = hp.steepRight ? hp.steep : hp.gentle;
+  var u = (x - seg.x0) / w;
+  var p = smooth((u + 0.07) / (bL + 0.07)) * smooth((1.07 - u) / (bR + 0.07));
+  var plateau = 1 + 0.06 * Noise.z(x * 0.01, seg.index) + 0.02 * Noise.z(x * 0.06, seg.index);
+  return coast.at(x).shore - hp.rise * p * plateau;
+}
+
+/**
  * @param {{x0: number, x1: number, index: number}} seg a headland segment
  * @param {ReturnType<typeof import("../world/coast.js").createCoast>} coast
  */
@@ -60,13 +75,7 @@ export function headland(seg, coast) {
 
   // Silhouette.
   var top = [];
-  for (var x = seg.x0 - spill; x <= seg.x1 + spill; x += 4) {
-    var u = (x - seg.x0) / w;
-    var p = smooth((u + 0.07) / (bL + 0.07)) * smooth((1.07 - u) / (bR + 0.07));
-    var plateau = 1 + 0.06 * Noise.z(x * 0.01, seg.index) + 0.02 * Noise.z(x * 0.06, seg.index);
-    var yf = foot(x);
-    top.push([x, yf - rise * p * plateau]);
-  }
+  for (var x = seg.x0 - spill; x <= seg.x1 + spill; x += 4) top.push([x, headlandTop(seg, coast, x, hp)]);
   var x0n = seg.x0 - spill - 0.12 * w;
   var x1n = seg.x1 + spill + 0.12 * w;
 

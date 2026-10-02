@@ -275,6 +275,14 @@ Figures (`figures.js`, generalising `Man.man`):
 
 Done when: every element has an approved specimen sheet and appears in the composed scene at sensible scale and frequency.
 
+*As built (3 October 2026; Amir asked to continue through the checkpoints, so specimens were reviewed by Claude):*
+
+- Flora in `src/elements/natives.js`: `gum`, `heath`, `banksia`, `casuarina`, `norfolkPine`, `grassTree`, `duneGrass`. Structures and boats in `src/elements/buildings.js`: `lighthouse` (with keeper's cottage), `kiosk` (sign "KIOSK"), `shack`, `boatShed`, `jetty`, `oceanPool`, `flags` (new `flag-red` and `flag-yellow` roles), `sailboat`, `dinghy`. Figures in `src/elements/people.js`: `person` with poses standing, walking, sitting, carrying, fishing, prone; hats sun, cap, none; items board, rod, towel, bag. All have specimen sheets (`pnpm specimen <name>`).
+- Figures are drawn from joint positions per pose rather than upstream's angle chains: easier to read and adjust. Limbs are resampled to 8 points, because `stroke()` widens only interior points (a 3-point limb draws as a diamond).
+- Placement (`src/world/scenes/coast-life.js`): layers `near` (sparse foreground flora, Norfolk pine rows behind some beaches), `life` (kiosk, flags with swimmers, walkers, sitters, surfers, shack or boat shed, jetty), `landmarks` (lighthouse on the plateau, ocean pool, fishers), `boats` (only in front of beaches).
+- Transmission tower: dropped from the coast scene (open question 4, default taken). Pagodas and pavilions do not appear in the coast scene.
+- Found another latent upstream NaN: `distMount` produces NaN unless `len` is a multiple of 50 (its loop steps past the end and takes `pow(negative, 0.5)`). The `far` layer rounds its lengths. `test/coast-scene.test.js` checks finite geometry, roles, order independence and eviction for the coast.
+
 ### Phase 5: colour and paper (M)
 
 1. Palettes as data. Starting values to tune by eye, not final:
