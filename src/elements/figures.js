@@ -1,4 +1,5 @@
 // Upstream figure: Man.man with hats and a carried stick.
+import { random } from "../rng.js";
 import { div, stroke } from "../brush.js";
 import { bezmh, distance, normRand } from "../geom.js";
 import { Noise } from "../noise.js";
@@ -9,7 +10,7 @@ import { poly } from "../render/svg.js";
       var vtxlist0 = [];
       var vtxlist1 = [];
       var vtxlist = [];
-      var n0 = Math.random() * 10;
+      var n0 = random() * 10;
       for (var i = 1; i < ptlist.length - 1; i++) {
         var w = wfun(i / ptlist.length);
         var a1 = Math.atan2(
@@ -91,7 +92,7 @@ import { poly } from "../render/svg.js";
       var fli = args.fli != undefined ? args.fli : false;
 
       var canv = "";
-      var seed = Math.random();
+      var seed = random();
       var f = fli
         ? flipper
         : function(x) {
@@ -135,7 +136,7 @@ import { poly } from "../render/svg.js";
       var fli = args.fli != undefined ? args.fli : false;
 
       var canv = "";
-      var seed = Math.random();
+      var seed = random();
 
       var f = fli
         ? flipper
@@ -172,7 +173,7 @@ import { poly } from "../render/svg.js";
       var fli = args.fli != undefined ? args.fli : false;
 
       var canv = "";
-      var seed = Math.random();
+      var seed = random();
       var f = fli
         ? flipper
         : function(x) {
@@ -220,11 +221,11 @@ import { poly } from "../render/svg.js";
               0,
               -Math.PI / 2,
               normRand(0, 0),
-              (Math.PI / 4) * Math.random(),
-              ((Math.PI * 3) / 4) * Math.random(),
+              (Math.PI / 4) * random(),
+              ((Math.PI * 3) / 4) * random(),
               (Math.PI * 3) / 4,
               -Math.PI / 4,
-              (-Math.PI * 3) / 4 - (Math.PI / 4) * Math.random(),
+              (-Math.PI * 3) / 4 - (Math.PI / 4) * random(),
               -Math.PI / 4,
             ];
       var len =

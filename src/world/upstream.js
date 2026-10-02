@@ -1,5 +1,6 @@
 // The upstream world: mountplanner, chunkloader and chunkrender, with upstream's global
 // MEM turned into per-world state. createWorld() returns an object; nothing is global.
+import { random } from "../rng.js";
 import { Arch } from "../elements/structures.js";
 import { water } from "../elements/sea.js";
 import { Mount } from "../elements/terrain.js";
@@ -72,7 +73,7 @@ export function createWorld() {
     for (var i = xmin; i < xmax; i += xstep) {
       for (var j = 0; j < yr(i) * 480; j += 30) {
         if (locmax(i, j, ns, 2)) {
-          var xof = i + 2 * (Math.random() - 0.5) * 500;
+          var xof = i + 2 * (random() - 0.5) * 500;
           var yof = j + 300;
           var r = { tag: "mount", x: xof, y: yof, h: ns(i, j) };
           var res = chadd(r);
@@ -91,7 +92,7 @@ export function createWorld() {
         var r = {
           tag: "distmount",
           x: i,
-          y: 280 - Math.random() * 50,
+          y: 280 - random() * 50,
           h: ns(i, j),
         };
         chadd(r);
@@ -101,11 +102,11 @@ export function createWorld() {
       if (MEM.planmtx[Math.floor(i / xstep)] == 0) {
         //var r = {tag:"redcirc",x:i,y:700}
         //console.log(i)
-        if (Math.random() < 0.01) {
-          for (var j = 0; j < 4 * Math.random(); j++) {
+        if (random() < 0.01) {
+          for (var j = 0; j < 4 * random(); j++) {
             var r = {
               tag: "flatmount",
-              x: i + 2 * (Math.random() - 0.5) * 700,
+              x: i + 2 * (random() - 0.5) * 700,
               y: 700 - j * 50,
               h: ns(i, j),
             };
@@ -119,8 +120,8 @@ export function createWorld() {
     }
 
     for (var i = xmin; i < xmax; i += xstep) {
-      if (Math.random() < 0.2) {
-        var r = { tag: "boat", x: i, y: 300 + Math.random() * 390 };
+      if (random() < 0.2) {
+        var r = { tag: "boat", x: i, y: 300 + random() * 390 };
         chadd(r, 400);
       }
     }
@@ -170,8 +171,8 @@ export function createWorld() {
             tag: plan[i].tag,
             x: plan[i].x,
             y: plan[i].y,
-            canv: Mount.mountain(plan[i].x, plan[i].y, i * 2 * Math.random()),
-            //{col:function(x){return "rgba(100,100,100,"+(0.5*Math.random()*plan[i].y/MEM.windy)+")"}}),
+            canv: Mount.mountain(plan[i].x, plan[i].y, i * 2 * random()),
+            //{col:function(x){return "rgba(100,100,100,"+(0.5*random()*plan[i].y/MEM.windy)+")"}}),
           });
           add({
             tag: plan[i].tag,
@@ -187,11 +188,11 @@ export function createWorld() {
             canv: Mount.flatMount(
               plan[i].x,
               plan[i].y,
-              2 * Math.random() * Math.PI,
+              2 * random() * Math.PI,
               {
-                wid: 600 + Math.random() * 400,
+                wid: 600 + random() * 400,
                 hei: 100,
-                cho: 0.5 + Math.random() * 0.2,
+                cho: 0.5 + random() * 0.2,
               },
             ),
           });
@@ -200,7 +201,7 @@ export function createWorld() {
             tag: plan[i].tag,
             x: plan[i].x,
             y: plan[i].y,
-            canv: Mount.distMount(plan[i].x, plan[i].y, Math.random() * 100, {
+            canv: Mount.distMount(plan[i].x, plan[i].y, random() * 100, {
               hei: 150,
               len: randChoice([500, 1000, 1500]),
             }),
@@ -210,7 +211,7 @@ export function createWorld() {
             tag: plan[i].tag,
             x: plan[i].x,
             y: plan[i].y,
-            canv: Arch.boat01(plan[i].x, plan[i].y, Math.random(), {
+            canv: Arch.boat01(plan[i].x, plan[i].y, random(), {
               sca: plan[i].y / 800,
               fli: randChoice([true, false]),
             }),

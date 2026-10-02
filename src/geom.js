@@ -1,4 +1,5 @@
 // PolyTools and numeric utilities from upstream.
+import { random } from "./rng.js";
 
   export const PolyTools = new function() {
     this.midPt = function() {
@@ -208,16 +209,16 @@
   }
 
   export function randChoice(arr) {
-    return arr[Math.floor(arr.length * Math.random())];
+    return arr[Math.floor(arr.length * random())];
   }
 
   export function normRand(m, M) {
-    return mapval(Math.random(), 0, 1, m, M);
+    return mapval(random(), 0, 1, m, M);
   }
 
   export function wtrand(func) {
-    var x = Math.random();
-    var y = Math.random();
+    var x = random();
+    var y = random();
     if (y < func(x)) {
       return x;
     } else {

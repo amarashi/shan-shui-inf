@@ -1,4 +1,5 @@
 // Upstream water: a few clusters of wave strokes under each mountain.
+import { random } from "../rng.js";
 import { stroke } from "../brush.js";
 import { Noise } from "../noise.js";
 
@@ -13,9 +14,9 @@ import { Noise } from "../noise.js";
     var yk = 0;
     for (var i = 0; i < clu; i++) {
       ptlist.push([]);
-      var xk = (Math.random() - 0.5) * (len / 8);
-      yk += Math.random() * 5;
-      var lk = len / 4 + Math.random() * (len / 4);
+      var xk = (random() - 0.5) * (len / 8);
+      yk += random() * 5;
+      var lk = len / 4 + random() * (len / 4);
       var reso = 5;
       for (var j = -lk; j < lk; j += reso) {
         ptlist[ptlist.length - 1].push([
@@ -32,7 +33,7 @@ import { Noise } from "../noise.js";
         }),
         {
           col:
-            "rgba(100,100,100," + (0.3 + Math.random() * 0.3).toFixed(3) + ")",
+            "rgba(100,100,100," + (0.3 + random() * 0.3).toFixed(3) + ")",
           wid: 1,
         },
       );

@@ -17,8 +17,12 @@ import { createWorld } from "../src/world/upstream.js";
 const golden = JSON.parse(readFileSync(new URL("../golden/upstream.json", import.meta.url), "utf8"));
 const sha = (s) => createHash("sha256").update(normalise(s)).digest("hex");
 
-// Phase 1 step 1: generation still calls Math.random, patched as upstream did.
-Math.random = random;
+// Generation uses random() from src/rng.js. Math.random is never patched, and a poisoned
+// Math.random proves nothing calls it.
+const realMathRandom = Math.random;
+Math.random = () => {
+  throw new Error("generation must not call Math.random");
+};
 
 /** Replay a page load of upstream/index.html?seed=S followed by the golden scroll script. */
 function replay(s) {
@@ -37,6 +41,11 @@ function replay(s) {
   }
   return { world, views };
 }
+
+test("the modules do not replace Math.random", () => {
+  expect(random).not.toBe(Math.random);
+  expect(realMathRandom.toString()).toContain("[native code]");
+});
 
 describe.each(Object.keys(golden.seeds))("seed %s", (s) => {
   const want = golden.seeds[s];

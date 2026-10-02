@@ -1,4 +1,5 @@
 // Brush primitives from upstream: stroke, blob, div, texture.
+import { random } from "./rng.js";
 import { loopNoise } from "./geom.js";
 import { Noise } from "./noise.js";
 import { poly } from "./render/svg.js";
@@ -24,7 +25,7 @@ import { poly } from "./render/svg.js";
     var vtxlist0 = [];
     var vtxlist1 = [];
     var vtxlist = [];
-    var n0 = Math.random() * 10;
+    var n0 = random() * 10;
     for (var i = 1; i < ptlist.length - 1; i++) {
       var w = wid * fun(i / ptlist.length);
       w = w * (1 - noi) + w * noi * Noise.noise(i * 0.5, n0);
@@ -93,7 +94,7 @@ import { poly } from "./render/svg.js";
       lalist.push([l, a]);
     }
     var nslist = [];
-    var n0 = Math.random() * 10;
+    var n0 = random() * 10;
     for (var i = 0; i < reso + 1; i++) {
       nslist.push(Noise.noise(i * 0.05, n0));
     }
@@ -159,25 +160,25 @@ import { poly } from "./render/svg.js";
       args.col != undefined
         ? args.col
         : function(x) {
-            return "rgba(100,100,100," + (Math.random() * 0.3).toFixed(3) + ")";
+            return "rgba(100,100,100," + (random() * 0.3).toFixed(3) + ")";
           };
     var dis =
       args.dis != undefined
         ? args.dis
         : function() {
-            if (Math.random() > 0.5) {
-              return (1 / 3) * Math.random();
+            if (random() > 0.5) {
+              return (1 / 3) * random();
             } else {
-              return (1 * 2) / 3 + (1 / 3) * Math.random();
+              return (1 * 2) / 3 + (1 / 3) * random();
             }
           };
     var reso = [ptlist.length, ptlist[0].length];
     var texlist = [];
     for (var i = 0; i < tex; i++) {
       var mid = (dis() * reso[1]) | 0;
-      //mid = (reso[1]/3+reso[1]/3*Math.random())|0
+      //mid = (reso[1]/3+reso[1]/3*random())|0
 
-      var hlen = Math.floor(Math.random() * (reso[1] * len));
+      var hlen = Math.floor(random() * (reso[1] * len));
 
       var start = mid - hlen;
       var end = mid + hlen;

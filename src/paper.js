@@ -3,6 +3,7 @@
 // random number per pixel of the first quadrant, so it must run at the same point in the
 // sequence to keep the world identical (PLAN.md fact 12).
 import { Noise } from "./noise.js";
+import { random } from "./rng.js";
 
 /**
  * @param {(fillStyle: string, x: number, y: number) => void} fillPixel draws one 1 x 1 pixel.
@@ -14,7 +15,7 @@ export function paperTexture(fillPixel) {
   for (var i = 0; i < reso / 2 + 1; i++) {
     for (var j = 0; j < reso / 2 + 1; j++) {
       var c = 245 + Noise.noise(i * 0.1, j * 0.1) * 10;
-      c -= Math.random() * 20;
+      c -= random() * 20;
 
       var r = c.toFixed(0);
       var g = (c * 0.95).toFixed(0);

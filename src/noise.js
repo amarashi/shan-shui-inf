@@ -2,6 +2,7 @@
 // (https://github.com/processing/p5.js/blob/main/src/math/noise.js).
 // p5.js is licensed under the GNU LGPL 2.1, so this file is kept separate from the
 // MIT-licensed code. See NOTICE and PLAN.md section 3, "Licence note".
+import { random } from "./rng.js";
 
   export const Noise = new function() {
     var PERLIN_YWRAPB = 4;
@@ -21,7 +22,7 @@
       if (perlin == null) {
         perlin = new Array(PERLIN_SIZE + 1);
         for (var i = 0; i < PERLIN_SIZE + 1; i++) {
-          perlin[i] = Math.random();
+          perlin[i] = random();
         }
       }
       if (x < 0) {
@@ -103,7 +104,7 @@
           z;
         return {
           setSeed: function(val) {
-            z = seed = (val == null ? Math.random() * m : val) >>> 0;
+            z = seed = (val == null ? random() * m : val) >>> 0;
           },
           getSeed: function() {
             return seed;

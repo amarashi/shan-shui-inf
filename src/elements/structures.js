@@ -1,4 +1,5 @@
 // Upstream buildings, boat and transmission tower: Arch.
+import { random } from "../rng.js";
 import { div, stroke, texture } from "../brush.js";
 import { normRand, PolyTools, randChoice, wtrand } from "../geom.js";
 import { Noise } from "../noise.js";
@@ -33,7 +34,7 @@ import { Man } from "./figures.js";
 
       for (var i = 0; i < reso[0]; i++) {
         ptlist.push([]);
-        var heir = hei + hei * 0.2 * Math.random();
+        var heir = hei + hei * 0.2 * random();
         for (var j = 0; j < reso[1]; j++) {
           var nx =
             wid * (i / (reso[0] - 1) - 0.5) * Math.pow(j / (reso[1] - 1), 0.7);
@@ -71,7 +72,7 @@ import { Man } from "./figures.js";
         len: 0.25,
         col: function(x) {
           return (
-            "rgba(120,120,120," + (0.3 + Math.random() * 0.3).toFixed(3) + ")"
+            "rgba(120,120,120," + (0.3 + random() * 0.3).toFixed(3) + ")"
           );
         },
         dis: function() {
@@ -267,7 +268,7 @@ import { Man } from "./figures.js";
         ptlist.push(div([[bmid, -hei - per], [wid * 0.5, -hei]], seg));
       }
       if (tra) {
-        var open = Math.floor(Math.random() * ptlist.length);
+        var open = Math.floor(random() * ptlist.length);
         ptlist[open] = ptlist[open].slice(0, -1);
         ptlist[(open + ptlist.length) % ptlist.length] = ptlist[
           (open + ptlist.length) % ptlist.length
@@ -291,7 +292,7 @@ import { Man } from "./figures.js";
             ],
             2,
           );
-          ln[0][0] += (Math.random() - 0.5) * hei * 0.5;
+          ln[0][0] += (random() - 0.5) * hei * 0.5;
           canv += poly(ln, {
             xof: xoff,
             yof: yoff,
@@ -491,7 +492,7 @@ import { Man } from "./figures.js";
 
       seed = seed != undefined ? seed : 0;
 
-      var p = 0.4 + Math.random() * 0.2;
+      var p = 0.4 + random() * 0.2;
       var h0 = hei * p;
       var h1 = hei * (1 - p);
 
@@ -510,7 +511,7 @@ import { Man } from "./figures.js";
         hei: 10,
         wid: wid,
         per: per * 2,
-        seg: (3 + Math.random() * 3) | 0,
+        seg: (3 + random() * 3) | 0,
       });
 
       var mcnt = randChoice([0, 1, 1, 2]);
@@ -535,7 +536,7 @@ import { Man } from "./figures.js";
         hei: 10,
         wid: wid,
         per: per * 2,
-        seg: (3 + Math.random() * 3) | 0,
+        seg: (3 + random() * 3) | 0,
       });
 
       return canv;
@@ -584,7 +585,7 @@ import { Man } from "./figures.js";
             })
           : [];
         var pla = undefined;
-        if (sto == 1 && Math.random() < 1 / 3) {
+        if (sto == 1 && random() < 1 / 3) {
           pla = [1, "Pizza Hut"];
         }
         canv += roof(xoff, yoff - hoff - hei, {

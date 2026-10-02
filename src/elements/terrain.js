@@ -1,4 +1,5 @@
 // Upstream landforms: Mount.mountain, flatMount, flatDec, distMount, rock.
+import { random } from "../rng.js";
 import { div, stroke, texture } from "../brush.js";
 import { loopNoise, normRand, PolyTools, randChoice } from "../geom.js";
 import { Noise } from "../noise.js";
@@ -74,7 +75,7 @@ import { Arch } from "./structures.js";
           {
             col:
               "rgba(100,100,100," +
-              (0.1 + Math.random() * 0.1).toFixed(3) +
+              (0.1 + random() * 0.1).toFixed(3) +
               ")",
             wid: 1,
           },
@@ -85,8 +86,8 @@ import { Arch } from "./structures.js";
 
     this.mountain = function(xoff, yoff, seed, args) {
       var args = args != undefined ? args : {};
-      var hei = args.hei != undefined ? args.hei : 100 + Math.random() * 400;
-      var wid = args.wid != undefined ? args.wid : 400 + Math.random() * 200;
+      var hei = args.hei != undefined ? args.hei : 100 + random() * 400;
+      var wid = args.wid != undefined ? args.wid : 400 + random() * 200;
       var tex = args.tex != undefined ? args.tex : 200;
       var veg = args.veg != undefined ? args.veg : true;
       var ret = args.ret != undefined ? args.ret : 0;
@@ -103,7 +104,7 @@ import { Arch } from "./structures.js";
 
       var hoff = 0;
       for (var j = 0; j < reso[0]; j++) {
-        hoff += (Math.random() * yoff) / 100;
+        hoff += (random() * yoff) / 100;
         ptlist.push([]);
         for (var i = 0; i < reso[1]; i++) {
           var x = (i / reso[1] - 0.5) * Math.PI;
@@ -202,10 +203,10 @@ import { Arch } from "./structures.js";
         vegetate(
           function(x, y) {
             var ht = ((h + y) / h) * 70;
-            ht = ht * 0.3 + Math.random() * ht * 0.7;
+            ht = ht * 0.3 + random() * ht * 0.7;
             return Tree.tree01(x + xoff, y + yoff, {
               hei: ht,
-              wid: Math.random() * 3 + 1,
+              wid: random() * 3 + 1,
               col:
                 "rgba(100,100,100," +
                 (Noise.noise(0.01 * x, 0.01 * y) * 0.5 * 0.3 + 0.3).toFixed(3) +
@@ -243,8 +244,8 @@ import { Arch } from "./structures.js";
         vegetate(
           function(x, y) {
             var ht = ((h + y) / h) * 120;
-            ht = ht * 0.5 + Math.random() * ht * 0.5;
-            var bc = Math.random() * 0.1;
+            ht = ht * 0.5 + random() * ht * 0.5;
+            var bc = random() * 0.1;
             var bp = 1;
             return Tree.tree03(x + xoff, y + yoff, {
               hei: ht,
@@ -277,7 +278,7 @@ import { Arch } from "./structures.js";
             return Arch.arch02(x + xoff, y + yoff, seed, {
               wid: normRand(40, 70),
               sto: randChoice([1, 2, 2, 3]),
-              rot: Math.random(),
+              rot: random(),
               sty: randChoice([1, 2, 3]),
             });
           } else if (tt == 2) {
@@ -305,14 +306,14 @@ import { Arch } from "./structures.js";
         function(x, y) {
           return Arch.arch03(x + xoff, y + yoff, seed, {
             sto: randChoice([5, 7]),
-            wid: 40 + Math.random() * 20,
+            wid: 40 + random() * 20,
           });
         },
         function(i, j) {
           return (
             i == 1 &&
             Math.abs(j - ptlist[i].length / 2) < 1 &&
-            Math.random() < 0.02
+            random() < 0.02
           );
         },
         function(veglist, i) {
@@ -342,13 +343,13 @@ import { Arch } from "./structures.js";
       vegetate(
         function(x, y) {
           return Mount.rock(x + xoff, y + yoff, seed, {
-            wid: 20 + Math.random() * 20,
-            hei: 20 + Math.random() * 20,
+            wid: 20 + random() * 20,
+            hei: 20 + random() * 20,
             sha: 2,
           });
         },
         function(i, j) {
-          return (j == 0 || j == ptlist[i].length - 1) && Math.random() < 0.1;
+          return (j == 0 || j == ptlist[i].length - 1) && random() < 0.1;
         },
         function(veglist, i) {
           return true;
@@ -364,8 +365,8 @@ import { Arch } from "./structures.js";
 
     this.flatMount = function(xoff, yoff, seed, args) {
       var args = args != undefined ? args : {};
-      var hei = args.hei != undefined ? args.hei : 40 + Math.random() * 400;
-      var wid = args.wid != undefined ? args.wid : 400 + Math.random() * 200;
+      var hei = args.hei != undefined ? args.hei : 40 + random() * 400;
+      var wid = args.wid != undefined ? args.wid : 400 + random() * 200;
       var tex = args.tex != undefined ? args.tex : 80;
       var cho = args.cho != undefined ? args.cho : 0.5;
       var ret = args.ret != undefined ? args.ret : 0;
@@ -378,7 +379,7 @@ import { Arch } from "./structures.js";
       var hoff = 0;
       var flat = [];
       for (var j = 0; j < reso[0]; j++) {
-        hoff += (Math.random() * yoff) / 100;
+        hoff += (random() * yoff) / 100;
         ptlist.push([]);
         flat.push([]);
         for (var i = 0; i < reso[1]; i++) {
@@ -428,10 +429,10 @@ import { Arch } from "./structures.js";
         tex: tex,
         wid: 2,
         dis: function() {
-          if (Math.random() > 0.5) {
-            return 0.1 + 0.4 * Math.random();
+          if (random() > 0.5) {
+            return 0.1 + 0.4 * random();
           } else {
-            return 0.9 - 0.4 * Math.random();
+            return 0.9 - 0.4 * random();
           }
         },
       });
@@ -518,14 +519,14 @@ import { Arch } from "./structures.js";
 
       var tt = randChoice([0, 0, 1, 2, 3, 4]);
 
-      for (var j = 0; j < Math.random() * 5; j++) {
+      for (var j = 0; j < random() * 5; j++) {
         canv += Mount.rock(
           xoff + normRand(grbd.xmin, grbd.xmax),
           yoff + (grbd.ymin + grbd.ymax) / 2 + normRand(-10, 10) + 10,
-          Math.random() * 100,
+          random() * 100,
           {
-            wid: 10 + Math.random() * 20,
-            hei: 10 + Math.random() * 20,
+            wid: 10 + random() * 20,
+            hei: 10 + random() * 20,
             sha: 2,
           },
         );
@@ -533,49 +534,49 @@ import { Arch } from "./structures.js";
       for (var j = 0; j < randChoice([0, 0, 1, 2]); j++) {
         var xr = xoff + normRand(grbd.xmin, grbd.xmax);
         var yr = yoff + (grbd.ymin + grbd.ymax) / 2 + normRand(-5, 5) + 20;
-        for (var k = 0; k < 2 + Math.random() * 3; k++) {
+        for (var k = 0; k < 2 + random() * 3; k++) {
           canv += Tree.tree08(
             xr + Math.min(Math.max(normRand(-30, 30), grbd.xmin), grbd.xmax),
             yr,
-            { hei: 60 + Math.random() * 40 },
+            { hei: 60 + random() * 40 },
           );
         }
       }
 
       if (tt == 0) {
-        for (var j = 0; j < Math.random() * 3; j++) {
+        for (var j = 0; j < random() * 3; j++) {
           canv += Mount.rock(
             xoff + normRand(grbd.xmin, grbd.xmax),
             yoff + (grbd.ymin + grbd.ymax) / 2 + normRand(-5, 5) + 20,
-            Math.random() * 100,
+            random() * 100,
             {
-              wid: 50 + Math.random() * 20,
-              hei: 40 + Math.random() * 20,
+              wid: 50 + random() * 20,
+              hei: 40 + random() * 20,
               sha: 5,
             },
           );
         }
       }
       if (tt == 1) {
-        var pmin = Math.random() * 0.5;
-        var pmax = Math.random() * 0.5 + 0.5;
+        var pmin = random() * 0.5;
+        var pmax = random() * 0.5 + 0.5;
         var xmin = grbd.xmin * (1 - pmin) + grbd.xmax * pmin;
         var xmax = grbd.xmin * (1 - pmax) + grbd.xmax * pmax;
         for (var i = xmin; i < xmax; i += 30) {
           canv += Tree.tree05(
             xoff + i + 20 * normRand(-1, 1),
             yoff + (grbd.ymin + grbd.ymax) / 2 + 20,
-            { hei: 100 + Math.random() * 200 },
+            { hei: 100 + random() * 200 },
           );
         }
-        for (var j = 0; j < Math.random() * 4; j++) {
+        for (var j = 0; j < random() * 4; j++) {
           canv += Mount.rock(
             xoff + normRand(grbd.xmin, grbd.xmax),
             yoff + (grbd.ymin + grbd.ymax) / 2 + normRand(-5, 5) + 20,
-            Math.random() * 100,
+            random() * 100,
             {
-              wid: 50 + Math.random() * 20,
-              hei: 40 + Math.random() * 20,
+              wid: 50 + random() * 20,
+              hei: 40 + random() * 20,
               sha: 5,
             },
           );
@@ -585,7 +586,7 @@ import { Arch } from "./structures.js";
           var xr = normRand(grbd.xmin, grbd.xmax);
           var yr = (grbd.ymin + grbd.ymax) / 2;
           canv += Tree.tree04(xoff + xr, yoff + yr + 20, {});
-          for (var j = 0; j < Math.random() * 2; j++) {
+          for (var j = 0; j < random() * 2; j++) {
             canv += Mount.rock(
               xoff +
                 Math.max(
@@ -593,10 +594,10 @@ import { Arch } from "./structures.js";
                   Math.min(grbd.xmax, xr + normRand(-50, 50)),
                 ),
               yoff + yr + normRand(-5, 5) + 20,
-              j * i * Math.random() * 100,
+              j * i * random() * 100,
               {
-                wid: 50 + Math.random() * 20,
-                hei: 40 + Math.random() * 20,
+                wid: 50 + random() * 20,
+                hei: 40 + random() * 20,
                 sha: 5,
               },
             );
@@ -607,12 +608,12 @@ import { Arch } from "./structures.js";
           canv += Tree.tree06(
             xoff + normRand(grbd.xmin, grbd.xmax),
             yoff + (grbd.ymin + grbd.ymax) / 2,
-            { hei: 60 + Math.random() * 60 },
+            { hei: 60 + random() * 60 },
           );
         }
       } else if (tt == 4) {
-        var pmin = Math.random() * 0.5;
-        var pmax = Math.random() * 0.5 + 0.5;
+        var pmin = random() * 0.5;
+        var pmax = random() * 0.5 + 0.5;
         var xmin = grbd.xmin * (1 - pmin) + grbd.xmax * pmin;
         var xmax = grbd.xmin * (1 - pmax) + grbd.xmax * pmax;
         for (var i = xmin; i < xmax; i += 20) {
@@ -624,7 +625,7 @@ import { Arch } from "./structures.js";
         }
       }
 
-      for (var i = 0; i < 50 * Math.random(); i++) {
+      for (var i = 0; i < 50 * random(); i++) {
         canv += Tree.tree02(
           xoff + normRand(grbd.xmin, grbd.xmax),
           yoff + normRand(grbd.ymin, grbd.ymax),
@@ -636,11 +637,11 @@ import { Arch } from "./structures.js";
         canv += Arch.arch01(
           xoff + normRand(grbd.xmin, grbd.xmax),
           yoff + (grbd.ymin + grbd.ymax) / 2 + 20,
-          Math.random(),
+          random(),
           {
             wid: normRand(160, 200),
             hei: normRand(80, 100),
-            per: Math.random(),
+            per: random(),
           },
         );
       }
@@ -785,14 +786,14 @@ import { Arch } from "./structures.js";
         sha: sha,
         col: function(x) {
           return (
-            "rgba(180,180,180," + (0.3 + Math.random() * 0.3).toFixed(3) + ")"
+            "rgba(180,180,180," + (0.3 + random() * 0.3).toFixed(3) + ")"
           );
         },
         dis: function() {
-          if (Math.random() > 0.5) {
-            return 0.15 + 0.15 * Math.random();
+          if (random() > 0.5) {
+            return 0.15 + 0.15 * random();
           } else {
-            return 0.85 - 0.15 * Math.random();
+            return 0.85 - 0.15 * random();
           }
         },
       });

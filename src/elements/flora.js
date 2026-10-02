@@ -1,4 +1,5 @@
 // Upstream trees: Tree.tree01 to Tree.tree08.
+import { random } from "../rng.js";
 import { blob, div, stroke } from "../brush.js";
 import { distance, loopNoise, normRand, PolyTools, randChoice, randGaussian } from "../geom.js";
 import { Noise } from "../noise.js";
@@ -36,12 +37,12 @@ import { poly } from "../render/svg.js";
         if (i >= reso / 4) {
           for (var j = 0; j < (reso - i) / 5; j++) {
             canv += blob(
-              nx + (Math.random() - 0.5) * wid * 1.2 * (reso - i),
-              ny + (Math.random() - 0.5) * wid,
+              nx + (random() - 0.5) * wid * 1.2 * (reso - i),
+              ny + (random() - 0.5) * wid,
               {
-                len: Math.random() * 20 * (reso - i) * 0.2 + 10,
-                wid: Math.random() * 6 + 3,
-                ang: ((Math.random() - 0.5) * Math.PI) / 6,
+                len: random() * 20 * (reso - i) * 0.2 + 10,
+                wid: random() * 6 + 3,
+                ang: ((random() - 0.5) * Math.PI) / 6,
                 col:
                   "rgba(" +
                   leafcol[0] +
@@ -50,7 +51,7 @@ import { poly } from "../render/svg.js";
                   "," +
                   leafcol[2] +
                   "," +
-                  (Math.random() * 0.2 + parseFloat(leafcol[3])).toFixed(1) +
+                  (random() * 0.2 + parseFloat(leafcol[3])).toFixed(1) +
                   ")",
               },
             );
@@ -95,8 +96,8 @@ import { poly } from "../render/svg.js";
                 ? Math.pow(Math.sin(x * Math.PI) * x, 0.5)
                 : -Math.pow(Math.sin((x - 2) * Math.PI * (x - 2)), 0.5);
             },
-            wid: Math.random() * wid * 0.75 + wid * 0.5,
-            len: Math.random() * hei * 0.75 + hei * 0.5,
+            wid: random() * wid * 0.75 + wid * 0.5,
+            len: random() * hei * 0.75 + hei * 0.5,
             col: col,
           },
         );
@@ -143,14 +144,14 @@ import { poly } from "../render/svg.js";
             var shape = function(x) {
               return Math.log(50 * x + 1) / 3.95;
             };
-            var ox = Math.random() * wid * 2 * shape((reso - i) / reso);
+            var ox = random() * wid * 2 * shape((reso - i) / reso);
             blobs += blob(
               nx + ox * randChoice([-1, 1]),
-              ny + (Math.random() - 0.5) * wid * 2,
+              ny + (random() - 0.5) * wid * 2,
               {
                 len: ox * 2,
-                wid: Math.random() * 6 + 3,
-                ang: ((Math.random() - 0.5) * Math.PI) / 6,
+                wid: random() * 6 + 3,
+                ang: ((random() - 0.5) * Math.PI) / 6,
                 col:
                   "rgba(" +
                   leafcol[0] +
@@ -159,7 +160,7 @@ import { poly } from "../render/svg.js";
                   "," +
                   leafcol[2] +
                   "," +
-                  (Math.random() * 0.2 + parseFloat(leafcol[3])).toFixed(3) +
+                  (random() * 0.2 + parseFloat(leafcol[3])).toFixed(3) +
                   ")",
               },
             );
@@ -195,7 +196,7 @@ import { poly } from "../render/svg.js";
       var a0 = 0;
       var g = 3;
       for (var i = 0; i < g; i++) {
-        a0 += (ben / 2 + (Math.random() * ben) / 2) * randChoice([-1, 1]);
+        a0 += (ben / 2 + (random() * ben) / 2) * randChoice([-1, 1]);
         nx += (Math.cos(a0) * hei) / g;
         ny -= (Math.sin(a0) * hei) / g;
         tlist.push([nx, ny]);
@@ -233,7 +234,7 @@ import { poly } from "../render/svg.js";
 
         var b = 0;
         if (p == 0) {
-          b = Math.random() * wid;
+          b = random() * wid;
         }
 
         var nw = wid * (((tl - i) / tl) * 0.5 + 0.5);
@@ -263,7 +264,7 @@ import { poly } from "../render/svg.js";
       var canv = "";
       var twlist = [];
       var tl = 10;
-      var hs = Math.random() * 0.5 + 0.5;
+      var hs = random() * 0.5 + 0.5;
       var fun1 = function(x) {
         return Math.pow(x, 0.5);
       };
@@ -272,7 +273,7 @@ import { poly } from "../render/svg.js";
       };
 
       var tfun = randChoice([fun2]);
-      var a0 = ((Math.random() * Math.PI) / 6) * dir + ang;
+      var a0 = ((random() * Math.PI) / 6) * dir + ang;
       for (var i = 0; i < tl; i++) {
         var mx = dir * tfun(i / tl) * 50 * sca * hs;
         var my = -i * 5 * sca;
@@ -300,10 +301,10 @@ import { poly } from "../render/svg.js";
               nx + tx + Math.cos(ang) * dj * wid,
               ny + ty + (Math.sin(ang) * dj - lea[1] / (dep + 1)) * wid,
               {
-                wid: (6 + 3 * Math.random()) * wid,
-                len: (15 + 12 * Math.random()) * wid,
+                wid: (6 + 3 * random()) * wid,
+                len: (15 + 12 * random()) * wid,
                 ang:
-                  ang / 2 + Math.PI / 2 + Math.PI * 0.2 * (Math.random() - 0.5),
+                  ang / 2 + Math.PI / 2 + Math.PI * 0.2 * (random() - 0.5),
                 col: "rgba(100,100,100," + (0.5 + dep * 0.2).toFixed(3) + ")",
                 fun: function(x) {
                   return x <= 1
@@ -327,7 +328,7 @@ import { poly } from "../render/svg.js";
 
     var barkify = function(x, y, trlist) {
       function bark(x, y, wid, ang) {
-        var len = 10 + 10 * Math.random();
+        var len = 10 + 10 * random();
         var noi = 0.5;
         var fun = function(x) {
           return x <= 1
@@ -347,7 +348,7 @@ import { poly } from "../render/svg.js";
           lalist.push([l, a]);
         }
         var nslist = [];
-        var n0 = Math.random() * 10;
+        var n0 = random() * 10;
         for (var i = 0; i < reso + 1; i++) {
           nslist.push(Noise.noise(i * 0.05, n0));
         }
@@ -360,7 +361,7 @@ import { poly } from "../render/svg.js";
           var ny = y + Math.sin(lalist[i][1] + ang) * lalist[i][0] * ns;
           brklist.push([nx, ny]);
         }
-        var fr = Math.random();
+        var fr = random();
         canv += stroke(brklist, {
           wid: 0.8,
           noi: 0,
@@ -384,10 +385,10 @@ import { poly } from "../render/svg.js";
           trlist[1][i][1] - trlist[1][i - 1][1],
           trlist[1][i][0] - trlist[1][i - 1][0],
         );
-        var p = Math.random();
+        var p = random();
         var nx = trlist[0][i][0] * (1 - p) + trlist[1][i][0] * p;
         var ny = trlist[0][i][1] * (1 - p) + trlist[1][i][1] * p;
-        if (Math.random() < 0.2) {
+        if (random() < 0.2) {
           canv += blob(nx + x, ny + y, {
             noi: 1,
             len: 15,
@@ -404,8 +405,8 @@ import { poly } from "../render/svg.js";
           );
         }
 
-        if (Math.random() < 0.05) {
-          var jl = Math.random() * 2 + 2;
+        if (random() < 0.05) {
+          var jl = random() * 2 + 2;
           var xya = randChoice([
             [trlist[0][i][0], trlist[0][i][1], a0],
             [trlist[1][i][0], trlist[1][i][1], a1],
@@ -416,7 +417,7 @@ import { poly } from "../render/svg.js";
               xya[1] + y + Math.sin(xya[2]) * (j - jl / 2) * 4,
               {
                 wid: 4,
-                len: 4 + 6 * Math.random(),
+                len: 4 + 6 * random(),
                 ang: a0 + Math.PI / 2,
                 col: "rgba(100,100,100,0.6)",
               },
@@ -427,7 +428,7 @@ import { poly } from "../render/svg.js";
       var trflist = trlist[0].concat(trlist[1].slice().reverse());
       var rglist = [[]];
       for (var i = 0; i < trflist.length; i++) {
-        if (Math.random() < 0.5) {
+        if (random() < 0.5) {
           rglist.push([]);
         } else {
           rglist[rglist.length - 1].push(trflist[i]);
@@ -473,12 +474,12 @@ import { poly } from "../render/svg.js";
         if (
           (i >= trlist.length * 0.3 &&
             i <= trlist.length * 0.7 &&
-            Math.random() < 0.1) ||
+            random() < 0.1) ||
           i == trlist.length / 2 - 1
         ) {
           var ba = Math.PI * 0.2 - Math.PI * 1.4 * (i > trlist.length / 2);
           var brlist = branch({
-            hei: hei * (Math.random() + 1) * 0.3,
+            hei: hei * (random() + 1) * 0.3,
             wid: wid * 0.5,
             ang: ba,
           });
@@ -491,7 +492,7 @@ import { poly } from "../render/svg.js";
           txcanv += barkify(x, y, [brlist[0].map(foff), brlist[1].map(foff)]);
 
           for (var j = 0; j < brlist[0].length; j++) {
-            if (Math.random() < 0.2 || j == brlist[0].length - 1) {
+            if (random() < 0.2 || j == brlist[0].length - 1) {
               twcanv += twig(
                 brlist[0][j][0] + trlist[i][0] + x,
                 brlist[0][j][1] + trlist[i][1] + y,
@@ -525,7 +526,7 @@ import { poly } from "../render/svg.js";
         }),
         {
           col:
-            "rgba(100,100,100," + (0.4 + Math.random() * 0.1).toFixed(3) + ")",
+            "rgba(100,100,100," + (0.4 + random() * 0.1).toFixed(3) + ")",
           wid: 2.5,
           fun: function(x) {
             return Math.sin(1);
@@ -563,14 +564,14 @@ import { poly } from "../render/svg.js";
           (i >= trlist.length * 0.2 &&
             i <= trlist.length * 0.8 &&
             i % 3 == 0 &&
-            Math.random() > p) ||
+            random() > p) ||
           i == trlist.length / 2 - 1
         ) {
-          var bar = Math.random() * 0.2;
+          var bar = random() * 0.2;
           var ba =
             -bar * Math.PI - (1 - bar * 2) * Math.PI * (i > trlist.length / 2);
           var brlist = branch({
-            hei: hei * (0.3 * p - Math.random() * 0.05),
+            hei: hei * (0.3 * p - random() * 0.05),
             wid: wid * 0.5,
             ang: ba,
             ben: 0.5,
@@ -620,7 +621,7 @@ import { poly } from "../render/svg.js";
         }),
         {
           col:
-            "rgba(100,100,100," + (0.4 + Math.random() * 0.1).toFixed(3) + ")",
+            "rgba(100,100,100," + (0.4 + random() * 0.1).toFixed(3) + ")",
           wid: 2.5,
           fun: function(x) {
             return Math.sin(1);
@@ -668,14 +669,14 @@ import { poly } from "../render/svg.js";
         for (var i = 0; i < trlist.length; i++) {
           var p = Math.abs(i - trlist.length * 0.5) / (trlist.length * 0.5);
           if (
-            ((Math.random() < 0.025 &&
+            ((random() < 0.025 &&
               i >= trlist.length * 0.2 &&
               i <= trlist.length * 0.8) ||
               i == ((trlist.length / 2) | 0) - 1 ||
               i == ((trlist.length / 2) | 0) + 1) &&
             dep > 0
           ) {
-            var bar = 0.02 + Math.random() * 0.08;
+            var bar = 0.02 + random() * 0.08;
             var ba =
               bar * Math.PI - bar * 2 * Math.PI * (i > trlist.length / 2);
 
@@ -684,7 +685,7 @@ import { poly } from "../render/svg.js";
               trlist[i][1] + yoff,
               dep - 1,
               {
-                hei: hei * (0.7 + Math.random() * 0.2),
+                hei: hei * (0.7 + random() * 0.2),
                 wid: wid * 0.6,
                 ang: ang + ba,
                 ben: 0.55,
@@ -692,13 +693,13 @@ import { poly } from "../render/svg.js";
             );
 
             for (var j = 0; j < brlist.length; j++) {
-              if (Math.random() < 0.03) {
+              if (random() < 0.03) {
                 twcanv += twig(
                   brlist[j][0] + trlist[i][0] + xoff,
                   brlist[j][1] + trlist[i][1] + yoff,
                   2,
                   {
-                    ang: ba * (Math.random() * 0.5 + 0.75),
+                    ang: ba * (random() * 0.5 + 0.75),
                     sca: 0.3,
                     dir: ba > 0 ? 1 : -1,
                     lea: [false, 0],
@@ -736,7 +737,7 @@ import { poly } from "../render/svg.js";
         }),
         {
           col:
-            "rgba(100,100,100," + (0.4 + Math.random() * 0.1).toFixed(3) + ")",
+            "rgba(100,100,100," + (0.4 + random() * 0.1).toFixed(3) + ")",
           wid: 2.5,
           fun: function(x) {
             return Math.sin(1);
@@ -788,12 +789,12 @@ import { poly } from "../render/svg.js";
         if (i >= reso / 4) {
           for (var j = 0; j < 1; j++) {
             var bpl = blob(
-              nx + (Math.random() - 0.5) * wid * 1.2 * (reso - i) * 0.5,
-              ny + (Math.random() - 0.5) * wid * 0.5,
+              nx + (random() - 0.5) * wid * 1.2 * (reso - i) * 0.5,
+              ny + (random() - 0.5) * wid * 0.5,
               {
-                len: Math.random() * 50 + 20,
-                wid: Math.random() * 12 + 12,
-                ang: (-Math.random() * Math.PI) / 6,
+                len: random() * 50 + 20,
+                wid: random() * 12 + 12,
+                ang: (-random() * Math.PI) / 6,
                 col:
                   "rgba(" +
                   leafcol[0] +
@@ -915,7 +916,7 @@ import { poly } from "../render/svg.js";
         });
         if (dep != 0) {
           var nben = ben + randChoice([-1, 1]) * Math.PI * 0.001 * dep * dep;
-          if (Math.random() < 0.5) {
+          if (random() < 0.5) {
             tcanv += fracTree(ept[0], ept[1], dep - 1, {
               ang:
                 ang +
@@ -948,12 +949,12 @@ import { poly } from "../render/svg.js";
       }
 
       for (var i = 0; i < trlist.length; i++) {
-        if (Math.random() < 0.2) {
+        if (random() < 0.2) {
           twcanv += fracTree(
             x + trlist[i][0],
             y + trlist[i][1],
-            Math.floor(4 * Math.random()),
-            { hei: 20, ang: -Math.PI / 2 - ang * Math.random() },
+            Math.floor(4 * random()),
+            { hei: 20, ang: -Math.PI / 2 - ang * random() },
           );
         } else if (i == Math.floor(trlist.length / 2)) {
           twcanv += fracTree(x + trlist[i][0], y + trlist[i][1], 3, {
@@ -971,7 +972,7 @@ import { poly } from "../render/svg.js";
         }),
         {
           col:
-            "rgba(100,100,100," + (0.6 + Math.random() * 0.1).toFixed(3) + ")",
+            "rgba(100,100,100," + (0.6 + random() * 0.1).toFixed(3) + ")",
           wid: 2.5,
           fun: function(x) {
             return Math.sin(1);
