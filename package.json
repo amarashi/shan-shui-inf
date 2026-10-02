@@ -8,7 +8,9 @@
   "packageManager": "pnpm@11.9.0",
   "scripts": {
     "dev": "vite",
-    "test": "vitest run"
+    "test": "vitest run",
+    "golden:record": "node tools/golden.js record",
+    "golden:check": "node tools/golden.js check"
   },
   "devDependencies": {
     "playwright": "^1.62.1",
