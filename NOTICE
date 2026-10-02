@@ -1,0 +1,20 @@
+coast-inf
+=========
+
+This project is a fork of {Shan, Shui}* by Lingdong Huang:
+https://github.com/LingDong-/shan-shui-inf
+
+The upstream project is released under the MIT License. Its copyright notice
+and licence text are kept unchanged in LICENSE.
+
+upstream/index.html is an unmodified copy of the upstream index.html at commit
+9f754d2 (the head of amarashi/shan-shui-inf when this fork started). It is kept
+only as the reference for the golden-master tests and must not be edited.
+
+The Perlin noise implementation in upstream/index.html is adapted from p5.js
+(src/math/noise.js), which is licensed under the GNU LGPL 2.1. See PLAN.md,
+section 3, "Licence note".
+
+This fork changes the subject matter from Chinese shan shui landscapes to an
+Australian coastal landscape. Changes are described in PLAN.md and the git
+history.
