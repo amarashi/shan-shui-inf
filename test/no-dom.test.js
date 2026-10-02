@@ -1,11 +1,14 @@
 // Generation must run without a DOM: in Node, in a Web Worker, and in the page.
+// Only the page-side modules may use the DOM.
+const PAGE_SIDE = ["render/dom.js"];
+const isPageSide = (f) => PAGE_SIDE.includes(f.replaceAll("\\", "/")) || f.replaceAll("\\", "/").startsWith("embed/");
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { expect, test } from "vitest";
 
 const SRC = fileURLToPath(new URL("../src/", import.meta.url));
-const files = readdirSync(SRC, { recursive: true }).filter((f) => f.endsWith(".js"));
+const files = readdirSync(SRC, { recursive: true }).filter((f) => f.endsWith(".js") && !isPageSide(f));
 const DOM_GLOBALS = /\b(window|document|self|navigator|localStorage|HTMLElement|requestAnimationFrame)\b/;
 
 test.each(files)("src/%s uses no DOM globals", (f) => {

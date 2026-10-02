@@ -1,7 +1,7 @@
 // A world: chunks generated on demand, each from its own random streams, painted back to
 // front. Same seed, same world, whatever order chunks are generated in.
 //
-// createWorld({ seed }) returns { MEM, update, xcroll, calcViewBox, noise, chunk, cached }.
+// createWorld({ seed }) returns { MEM, update, xcroll, calcViewBox, noise, chunk, visible, cached }.
 // Chunks far from the view are evicted on update(), so memory stays bounded.
 // MEM keeps upstream's field names (cursx, windx, windy, cwid, canv, chunks) so the
 // compatibility page and tools keep working.
@@ -28,8 +28,8 @@ export function createWorld(opts) {
   var cache = new Map();
   var sorted = null; // all parts in paint order, rebuilt when the cache changes
 
+  var shown = []; // parts in the view, in paint order
   var MEM = {
-    canv: "",
     chunks: [], // parts in paint order, as upstream's MEM.chunks
     cwid: CHUNK,
     cursx: 0,
@@ -50,7 +50,8 @@ export function createWorld(opts) {
           return layer.draw(r, i);
         });
         drawn.forEach(function (d, p) {
-          out.push({ tag: r.tag, x: r.x, y: d.y, list: d.list, canv: toSVG(d.list, palette), k: k, i: i, p: p });
+          var id = k + ":" + i + ":" + p;
+          out.push({ id: id, tag: r.tag, x: r.x, y: d.y, list: d.list, canv: toSVG(d.list, palette), k: k, i: i, p: p });
         });
       });
       return out;
@@ -90,6 +91,14 @@ export function createWorld(opts) {
     planner.forget(r[0] - 2, r[1] + 2);
   }
 
+  // Markup of the view, built only when read (upstream rebuilt it on every scroll step).
+  Object.defineProperty(MEM, "canv", {
+    enumerable: true,
+    get: function () {
+      return shown.map((p) => p.canv).join("");
+    },
+  });
+
   // Upstream's chunkrender: every part whose record x is within one chunk width of the view.
   function render(xmin, xmax) {
     if (sorted === null) {
@@ -98,11 +107,10 @@ export function createWorld(opts) {
       sorted.sort(byDepth);
       MEM.chunks = sorted;
     }
-    var canv = "";
+    shown = [];
     for (var i = 0; i < sorted.length; i++) {
-      if (xmin - CHUNK < sorted[i].x && sorted[i].x < xmax + CHUNK) canv += sorted[i].canv;
+      if (xmin - CHUNK < sorted[i].x && sorted[i].x < xmax + CHUNK) shown.push(sorted[i]);
     }
-    MEM.canv = canv;
   }
 
   function update() {
@@ -127,6 +135,10 @@ export function createWorld(opts) {
     calcViewBox: calcViewBox,
     noise: noise,
     chunk: chunk,
+    /** Parts in the view, in paint order: {id, canv, x, y, ...}. */
+    visible: function () {
+      return shown;
+    },
     /** Number of chunks held in memory. */
     cached: function () {
       return cache.size;

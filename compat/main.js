@@ -3,6 +3,7 @@
 // the same seed gives a different (but scroll-order independent) world from upstream's.
 import { withNoise } from "../src/noise.js";
 import { paperTexture } from "../src/paper.js";
+import { createPartView } from "../src/render/dom.js";
 import { palettes } from "../src/render/palette.js";
 import { stream, withRandom } from "../src/rng.js";
 import { createWorld } from "../src/world/chunks.js";
@@ -23,21 +24,21 @@ const world = createWorld({ seed: SEED, palette: palettes[PALETTE] });
 const MEM = world.MEM;
 
 // --- upstream update(), xcroll() and UI helpers ---
+// The <svg> is created once; each update moves the viewBox and syncs only the parts that
+// entered or left the view (upstream rebuilt the whole SVG with innerHTML every time).
+var view = null;
 function render() {
-  document.getElementById("BG").innerHTML =
-    "<svg id='SVG' xmlns='http://www.w3.org/2000/svg' width='" +
-    MEM.windx +
-    "' height='" +
-    MEM.windy +
-    "' style='mix-blend-mode:multiply;'" +
-    "viewBox = '" +
-    world.calcViewBox() +
-    "'" +
-    "><g id='G' transform='translate(" +
-    0 +
-    ",0)'>" +
-    MEM.canv +
-    "</g></svg>";
+  if (view === null) {
+    document.getElementById("BG").innerHTML =
+      "<svg id='SVG' xmlns='http://www.w3.org/2000/svg' width='" +
+      MEM.windx +
+      "' height='" +
+      MEM.windy +
+      "' style='mix-blend-mode:multiply;'><g id='G'></g></svg>";
+    view = createPartView(document.getElementById("G"));
+  }
+  document.getElementById("SVG").setAttribute("viewBox", world.calcViewBox());
+  view.sync(world.visible());
 }
 function update() {
   world.update();
@@ -109,6 +110,7 @@ function downloadSvg() {
 // tools/golden.js reads and calls, as on the upstream page.
 Object.assign(window, {
   MEM,
+  world, // for tools and debugging
   xcroll,
   autoxcroll,
   rstyle,
