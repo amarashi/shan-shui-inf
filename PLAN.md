@@ -29,7 +29,7 @@ Not goals for v1: photorealism, 3D, animation of the water, other regions (see s
 
 | # | Decision | Default | Alternative |
 |---|----------|---------|-------------|
-| D1 | Art direction | Ink line plus watercolour wash (keep original brushwork, add tinted fills) | Pure monochrome ink |
+| D1 | Art direction | **Pure monochrome ink (decided by Amir, 3 October 2026: "dont use colours, keep it black and white")** | Ink line plus watercolour wash (built in Phase 5, then reverted) |
 | D2 | Region for v1 | Temperate east coast: honey sandstone headlands, pocket beaches, eucalypt and heath | Great Ocean Road, tropical north, red centre (stretch) |
 | D3 | Viewpoint | From land looking out to sea, scrolling along the coast | From the water looking at the coast, as upstream does |
 | D4 | Language | Plain modern JavaScript (ES modules) with JSDoc types | TypeScript |
@@ -292,7 +292,9 @@ Done when: every element has an approved specimen sheet and appears in the compo
 3. Aerial perspective: far layers shift towards the sky colour and lose contrast.
 4. Palette chosen by option or from the seed.
 
-**CHECKPOINT 3**: contact sheets for each palette. Amir picks the default and gives tuning notes.
+**CHECKPOINT 3**: not needed. Amir chose black and white (D1), so there is no palette to pick.
+
+*As built (3 October 2026):* colour palettes, watercolour washes and aerial perspective were built (commit e0fa440: east-coast, overcast and golden-hour palettes; graded sky and sea washes; paper tint) and then reverted at Amir's request (commit 509649a). The scene stays in the `ink` palette. The colour-role system from Phase 2 remains, because it costs nothing in ink and keeps colour possible later (`git revert 509649a` restores the palettes). The diagnostic `roles` palette is still available to tools.
 
 ### Phase 6: embedding, performance, accessibility (M)
 
@@ -365,7 +367,7 @@ Automated tests cannot tell you whether it looks good. The sheets and the checkp
 - Pre-rendered static mode for sites that want zero client cost.
 
 ## 10. Open questions for Amir
-
+2. ~~D1: happy with ink plus wash, or pure monochrome?~~ Answered: black and white.
 1. What site is this for, and where does it sit on the page (full-width hero, banner strip, background)? This sets height, mode and the performance budget.
 2. D1: happy with ink plus wash, or pure monochrome?
 3. D3: looking out to sea from land, or looking at the coast from the water?
