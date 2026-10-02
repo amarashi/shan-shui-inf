@@ -4,7 +4,6 @@ import { CHUNK } from "../plan.js";
 
 /** Paint order of the coast layers: smaller is further back. */
 export const DEPTH = {
-  wash: -70000,
   sky: -60000,
   far: -50000,
   sea: -40000,

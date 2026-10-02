@@ -8,23 +8,19 @@ import { palettes } from "../src/render/palette.js";
 import { WINDX, WINDY } from "../src/world/chunks.js";
 
 // --- seed (upstream parseArgs: the raw text after "seed=", not URL-decoded) ---
-// Also (not in upstream) ?scene=coast|upstream and
-// ?palette=east-coast|overcast|golden-hour|ink|roles|seed (default: east-coast for the coast,
-// ink for upstream's scene).
+// Also (not in upstream) ?palette=ink|roles and ?scene=coast|upstream.
 var SEED = "" + new Date().getTime();
-var PALETTE = null;
+var PALETTE = "ink";
 var SCENE = "coast";
 var par = window.location.href.split("?")[1];
 if (par != undefined) {
   par.split("&").forEach(function (kv) {
     var e = kv.split("=");
     if (e[0] == "seed") SEED = e[1] == "" ? SEED : e[1];
-    if (e[0] == "palette" && (palettes[e[1]] || e[1] == "seed")) PALETTE = e[1];
+    if (e[0] == "palette" && palettes[e[1]]) PALETTE = e[1];
     if (e[0] == "scene" && (e[1] == "coast" || e[1] == "upstream")) SCENE = e[1];
   });
 }
-if (PALETTE === null) PALETTE = SCENE == "coast" ? "east-coast" : "ink";
-
 // --- the world: generated in a worker, synced into one <svg> created once ---
 document.getElementById("BG").innerHTML =
   "<svg id='SVG' xmlns='http://www.w3.org/2000/svg' width='" +

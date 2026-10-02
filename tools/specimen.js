@@ -132,7 +132,7 @@ if (ENGINE_ELEMENTS[name]) {
   svg += "</svg>";
   const page = await browser.newPage({ viewport: { width: COLS * CELL_PX + 20, height: 900 } });
   await page.setContent(
-    `<body style="margin:0;background:url(${await paperDataUrl("paper", palette.paper)})"><div id="SPEC" style="display:inline-block">${svg}</div></body>`,
+    `<body style="margin:0;background:url(${await paperDataUrl()})"><div id="SPEC" style="display:inline-block">${svg}</div></body>`,
   );
   await page.locator("#SPEC").screenshot({ path: out });
 } else if (ELEMENTS[name]) {
@@ -214,7 +214,7 @@ if (ENGINE_ELEMENTS[name]) {
   svg += "</svg>";
   const page = await browser.newPage({ viewport: { width: ncols * cellW + 20, height: 900 } });
   await page.setContent(
-    `<body style="margin:0;background:url(${await paperDataUrl("paper", palette.paper)})"><div id="SPEC" style="display:inline-block">${svg}</div></body>`,
+    `<body style="margin:0;background:url(${await paperDataUrl()})"><div id="SPEC" style="display:inline-block">${svg}</div></body>`,
   );
   await page.locator("#SPEC").screenshot({ path: out });
 }

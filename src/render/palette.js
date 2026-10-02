@@ -11,8 +11,6 @@
 //
 // `a` may be a number or a string. Upstream formatted many alphas with toFixed(); keeping
 // that text lets the ink palette print exactly what upstream printed.
-import { hash } from "../rng.js";
-import { COLOUR_PALETTES } from "./palettes.js";
 
 /** Roles a colour can have. */
 export const ROLES = [
@@ -39,20 +37,9 @@ export function tone(role, a, rgb = [100, 100, 100]) {
   return { role: role, rgb: rgb, a: a };
 }
 
-/**
- * The opaque body of an object of this role (upstream: white). shade (0 to 1) picks within
- * the role's range in colour palettes, e.g. deep to shallow water; the ink palette ignores it.
- */
-export function body(role, shade) {
-  return shade === undefined ? { role: role, body: true } : { role: role, body: true, shade: shade };
-}
-
-/**
- * A continuous wash band (sky, sea, sand): like body(), but palettes paint it flat, with no
- * per-shape variation or distance haze, so bands drawn in separate chunks join seamlessly.
- */
-export function wash(role, shade) {
-  return { role: role, body: true, shade: shade, flat: true };
+/** The opaque body of an object of this role (upstream: white). */
+export function body(role) {
+  return { role: role, body: true };
 }
 
 /** Same colour, different role. */
@@ -106,18 +93,4 @@ export const roles = {
   },
 };
 
-export const palettes = Object.assign({ ink: ink, roles: roles }, COLOUR_PALETTES);
-
-/** Names a viewer can choose; "seed" picks one of the colour palettes from the seed. */
-export const PALETTE_NAMES = ["east-coast", "overcast", "golden-hour", "ink", "seed"];
-
-/**
- * The palette for a name, or for "seed" one chosen from the seed (east-coast most often).
- * @param {string} name
- * @param {string} seed
- */
-export function pickPalette(name, seed) {
-  if (name !== "seed") return palettes[name] || palettes["east-coast"];
-  var u = hash(seed, "palette") / 4294967296;
-  return u < 0.6 ? palettes["east-coast"] : u < 0.8 ? palettes.overcast : palettes["golden-hour"];
-}
+export const palettes = { ink: ink, roles: roles };

@@ -9,7 +9,7 @@ function polyline(r, p) {
   for (var i = 0; i < r.pts.length; i++) {
     canv += " " + r.pts[i][0].toFixed(1) + "," + r.pts[i][1].toFixed(1);
   }
-  return canv + "' style='fill:" + p.paint(r.fill, r) + ";stroke:" + p.paint(r.stroke, r) + ";stroke-width:" + r.width + "'/>";
+  return canv + "' style='fill:" + p.paint(r.fill) + ";stroke:" + p.paint(r.stroke) + ";stroke-width:" + r.width + "'/>";
 }
 
 function text(r, p) {
@@ -17,7 +17,7 @@ function text(r, p) {
     "<text font-size='" +
     r.size +
     "' font-family='Verdana' style='fill:" +
-    p.paint(r.fill, r) +
+    p.paint(r.fill) +
     "' text-anchor='middle' transform='translate(" +
     r.x +
     "," +
@@ -32,7 +32,7 @@ function text(r, p) {
 
 /**
  * @param {object[]} list display list
- * @param {{paint: (c: object, rec?: object) => string}} [palette] defaults to ink (the upstream look)
+ * @param {{paint: (c: object) => string}} [palette] defaults to ink (the upstream look)
  * @returns {string} SVG markup (no <svg> wrapper)
  */
 export function toSVG(list, palette = ink) {
