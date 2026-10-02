@@ -106,7 +106,7 @@ Later performance budgets are set relative to these numbers. Absolute times depe
 Each row is one page load of \`upstream/index.html?seed=S\`, first screen (3000 x 800 SVG). Times in milliseconds from navigation start.
 
 - **svg inserted**: generation of the first screen plus \`innerHTML\`.
-- **first paint**: first contentful paint. It lands before the load event: the browser paints the SVG between the inline `update()` script and the paper texture script that follows it.
+- **first paint**: first contentful paint as Chromium reports it. In these runs it came after the load event on desktop but before it under throttling, so treat it as approximate in headless mode; **svg inserted** is the more stable number.
 - **scroll step**: median of ${SCROLL_STEPS} \`xcroll(200)\` calls plus the next frame. Upstream rebuilds the whole SVG on every step.
 - **elements**: elements inside the on-screen \`<svg>\`. **MB**: size of the on-screen markup.
 

@@ -6,7 +6,7 @@ Later performance budgets are set relative to these numbers. Absolute times depe
 Each row is one page load of `upstream/index.html?seed=S`, first screen (3000 x 800 SVG). Times in milliseconds from navigation start.
 
 - **svg inserted**: generation of the first screen plus `innerHTML`.
-- **first paint**: first contentful paint. Upstream also runs the paper texture before the browser can paint.
+- **first paint**: first contentful paint as Chromium reports it. In these runs it came after the load event on desktop but before it under throttling, so treat it as approximate in headless mode; **svg inserted** is the more stable number.
 - **scroll step**: median of 5 `xcroll(200)` calls plus the next frame. Upstream rebuilds the whole SVG on every step.
 - **elements**: elements inside the on-screen `<svg>`. **MB**: size of the on-screen markup.
 
@@ -14,23 +14,23 @@ Each row is one page load of `upstream/index.html?seed=S`, first screen (3000 x 
 
 | seed | svg inserted | first paint | load | scroll step | elements | MB |
 |---|---:|---:|---:|---:|---:|---:|
-| 1 | 558 | 808 | 701 | 136 | 38621 | 12.60 |
-| 42 | 880 | 1364 | 1039 | 240 | 66428 | 22.47 |
-| coast | 601 | 960 | 748 | 154 | 41065 | 14.34 |
-| sydney | 245 | 440 | 379 | 58 | 16473 | 5.47 |
-| 1234567890123 | 599 | 908 | 746 | 140 | 42836 | 14.51 |
-| **median** | **599** | **908** | **746** | **140** | **41065** | **14.34** |
+| 1 | 559 | 808 | 703 | 134 | 38621 | 12.60 |
+| 42 | 874 | 1360 | 1034 | 226 | 66428 | 22.47 |
+| coast | 601 | 956 | 746 | 152 | 41065 | 14.34 |
+| sydney | 243 | 436 | 376 | 58 | 16473 | 5.47 |
+| 1234567890123 | 594 | 900 | 740 | 142 | 42836 | 14.51 |
+| **median** | **594** | **900** | **740** | **142** | **41065** | **14.34** |
 
 ## mobile CPU (4x throttle)
 
 | seed | svg inserted | first paint | load | scroll step | elements | MB |
 |---|---:|---:|---:|---:|---:|---:|
-| 1 | 2718 | 2860 | 3405 | 651 | 38621 | 12.60 |
-| 42 | 4270 | 4548 | 5036 | 1081 | 66428 | 22.47 |
-| coast | 2859 | 3028 | 3545 | 759 | 41065 | 14.34 |
-| sydney | 1123 | 1188 | 1745 | 275 | 16473 | 5.47 |
-| 1234567890123 | 2832 | 2996 | 3530 | 665 | 42836 | 14.51 |
-| **median** | **2832** | **2996** | **3530** | **665** | **41065** | **14.34** |
+| 1 | 2710 | 2852 | 3402 | 641 | 38621 | 12.60 |
+| 42 | 4294 | 4576 | 5081 | 1121 | 66428 | 22.47 |
+| coast | 2933 | 3108 | 3633 | 741 | 41065 | 14.34 |
+| sydney | 1161 | 1232 | 1794 | 285 | 16473 | 5.47 |
+| 1234567890123 | 2810 | 2972 | 3497 | 657 | 42836 | 14.51 |
+| **median** | **2810** | **2972** | **3497** | **657** | **41065** | **14.34** |
 
 ## Markup by chunk type (desktop, first screen, MB)
 
