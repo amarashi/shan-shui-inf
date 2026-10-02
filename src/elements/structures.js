@@ -580,10 +580,9 @@ import { Man } from "./figures.js";
               tra: false,
             })
           : []));
+        // Upstream put a real brand's name on one in three single-storey buildings. Removed
+        // (no real brands); roof() still draws a sign when given pla = [1, text].
         var pla = undefined;
-        if (sto == 1 && random() < 1 / 3) {
-          pla = [1, "Pizza Hut"];
-        }
         canv.push(...roof(xoff, yoff - hoff - hei, {
           hei: hei,
           wid: wid * Math.pow(0.9, i),
