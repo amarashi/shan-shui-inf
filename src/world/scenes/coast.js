@@ -28,6 +28,12 @@ export const coast = {
 
 // --- layers, back to front ---
 import { swell } from "../../elements/sea.js";
+import { washes } from "../../elements/washes.js";
+
+registerCoastLayer({
+  name: "wash",
+  draw: (r, i, ctx) => [{ y: r.y, list: washes(r.x0, r.x1, ctx.coast) }],
+});
 
 registerCoastLayer({
   name: "sea",

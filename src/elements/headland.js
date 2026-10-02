@@ -100,6 +100,8 @@ export function headland(seg, coast) {
     }
     rows.push(row);
   }
+  // vegetation wash over the slope (invisible in ink: a body paints white)
+  canv.push(...poly(rows[0].concat(rows[ROWS].slice().reverse()), { fil: body("foliage", 0.5), str: NONE }));
   canv.push(
     ...texture(rows, {
       tex: 70,

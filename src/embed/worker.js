@@ -10,17 +10,19 @@
 //   { type: "paper", gen, width, height, data } RGBA pixels, transferred
 import { withNoise } from "../noise.js";
 import { paperTexture } from "../paper.js";
-import { palettes } from "../render/palette.js";
+import { pickPalette } from "../render/palette.js";
 import { stream, withRandom } from "../rng.js";
 import { createGenerator } from "../world/generator.js";
 
 var gen = null;
+var pal = null;
 var genId = -1;
 
 self.onmessage = function (e) {
   var m = e.data;
   if (m.type === "init") {
-    gen = createGenerator({ seed: m.seed, scene: m.scene, palette: palettes[m.palette] || palettes.ink });
+    pal = pickPalette(m.palette, m.seed);
+    gen = createGenerator({ seed: m.seed, scene: m.scene, palette: pal });
     genId = m.gen;
     return;
   }
@@ -44,9 +46,10 @@ self.onmessage = function (e) {
           if (x >= size || y >= size) return; // the tile mirrors onto x = 512 and y = 512
           var rgb = style.slice(4, -1).split(",");
           var o = (y * size + x) * 4;
-          data[o] = +rgb[0];
-          data[o + 1] = +rgb[1];
-          data[o + 2] = +rgb[2];
+          var tint = pal.paper || [1, 1, 1]; // colour palettes tint the paper
+          data[o] = +rgb[0] * tint[0];
+          data[o + 1] = +rgb[1] * tint[1];
+          data[o + 2] = +rgb[2] * tint[2];
           data[o + 3] = 255;
         });
       });

@@ -292,6 +292,18 @@ Done when: every element has an approved specimen sheet and appears in the compo
 3. Aerial perspective: far layers shift towards the sky colour and lose contrast.
 4. Palette chosen by option or from the seed.
 
+*As built (3 October 2026):*
+
+- Palettes in `src/render/palettes.js` (`east-coast`, `overcast`, `golden-hour`) plus `ink` and the diagnostic `roles`. A palette maps each role to a wash (for `body()` fills) and a tinted ink (for lines); greys lighter than upstream's ink blend towards the wash, and upstream's opaque grey fills (distant mountains) become hazy washes.
+- Per-shape variation comes from a hash of the shape's first point, never from `random()`, so palettes cannot move geometry; the ink palette's output is unchanged (engine golden).
+- Aerial perspective: colours shift towards the horizon sky colour and lose contrast with `haze * (1 - depth)^2`.
+- Continuous bands (sky, sea, sand, back-dune) use `wash(role, shade)`: painted flat, with no per-shape variation or haze, because bands are drawn per chunk and any per-chunk difference shows as a seam. A first attempt with per-shape variation on bands showed exactly that.
+- Washes layer (`src/elements/washes.js`): 8 sky bands, 16 sea bands (deep to shallow), wet sand, dry sand, back-dune vegetation; headlands paint a vegetation wash over their near slope. In ink these are white bodies and vanish under the multiply blend.
+- Paper tinted per palette (`palette.paper`), in the worker and in the specimen tool.
+- Palette by option: `?palette=east-coast|overcast|golden-hour|ink|roles|seed`; `seed` picks one from the seed (60% east-coast, 20% each of the others). Default for the coast scene: `east-coast`.
+
+**CHECKPOINT 3** (taken by Claude at Amir's request to keep going): default palette `east-coast`. Contact sheets: `pnpm sheet --source modules --palette <name>`. Tuning notes welcome.
+
 **CHECKPOINT 3**: contact sheets for each palette. Amir picks the default and gives tuning notes.
 
 ### Phase 6: embedding, performance, accessibility (M)
