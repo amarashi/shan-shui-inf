@@ -28,8 +28,9 @@ const FAR_SHORE = YH + 0.14 * (H - YH);
 /** @param {string} seed */
 export function createCoast(seed) {
   seed = String(seed);
-  // Segment 0 is a beach starting at x = -600, so the first screen opens on a bay.
-  var ORIGIN = -600;
+  // Segment 0 is a beach starting a seed-dependent distance left of x = 0, so the first
+  // screen opens on a different part of a bay for each seed.
+  var ORIGIN = -300 - 1800 * (hash(seed, "origin") / 4294967296);
   /** @type {Map<number, Segment>} */
   var segs = new Map();
   var bounds = { lo: 0, hi: -1 }; // indices generated so far

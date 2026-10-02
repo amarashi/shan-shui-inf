@@ -145,7 +145,9 @@ import { random } from "./rng.js";
         if (plist.length == 0) {
           return [];
         }
-        if (areaOf(plist) < a) {
+        // !(area >= a), not area < a: for very flat triangles Heron's formula can give
+        // NaN (a tiny negative under the root), and upstream then recursed forever.
+        if (!(areaOf(plist) >= a)) {
           return [plist];
         } else {
           var slist = sidesOf(plist);

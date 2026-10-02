@@ -40,7 +40,7 @@ test("the DOM matches the world's visible parts after every scroll", async () =>
 });
 
 test("the worker generates exactly what Node generates", async () => {
-  const page = await openUpstream(browser, "42", `${server.url}index.html`);
+  const page = await openUpstream(browser, "42", `${server.url}index.html`, "scene=upstream");
   const inPage = await page.evaluate(async () => {
     await xcroll(1700);
     const parts = scroller.visible();

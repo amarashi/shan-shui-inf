@@ -22,18 +22,34 @@ function smooth(t) {
 }
 
 /**
+ * A headland's shape parameters, from its own stream (shared with the stacks layer).
+ * @param {{x0: number, x1: number, index: number}} seg
+ */
+export function headlandParams(seg, coast) {
+  var r = coast.rand("headland", seg.index);
+  return {
+    r: r,
+    rise: 70 + 80 * r(), // plateau height above the waterline
+    steepRight: r() < 0.5,
+    steep: 0.05 + 0.04 * r(), // flank widths as fractions of the width
+    gentle: 0.22 + 0.12 * r(),
+  };
+}
+
+/**
  * @param {{x0: number, x1: number, index: number}} seg a headland segment
  * @param {ReturnType<typeof import("../world/coast.js").createCoast>} coast
  */
 export function headland(seg, coast) {
   var canv = [];
-  var r = coast.rand("headland", seg.index);
+  var hp = headlandParams(seg, coast);
+  var r = hp.r;
   var w = seg.x1 - seg.x0;
   var xc = (seg.x0 + seg.x1) / 2;
-  var rise = 70 + 80 * r(); // plateau height above the waterline
-  var steepRight = r() < 0.5;
-  var steep = 0.05 + 0.04 * r(); // flank widths as fractions of w
-  var gentle = 0.22 + 0.12 * r();
+  var rise = hp.rise;
+  var steepRight = hp.steepRight;
+  var steep = hp.steep;
+  var gentle = hp.gentle;
   var bL = steepRight ? gentle : steep;
   var bR = steepRight ? steep : gentle;
   var spill = 0.07 * w; // the flanks reach a little into the bays
@@ -199,5 +215,38 @@ function undercut(pts) {
   var canv = [];
   canv.push(...stroke(pts, { col: tone("rock", (0.35 + 0.15 * random()).toFixed(3)), wid: 2 + 1.5 * random(), noi: 0.8 }));
   canv.push(...stroke(pts.map((p) => [p[0], p[1] - 3]), { col: tone("rock", 0.15), wid: 1 }));
+  return canv;
+}
+
+/**
+ * Sea stacks off the steep flank of a headland with the "stacks" variant.
+ */
+export function stacks(seg, coast) {
+  var canv = [];
+  var hp = headlandParams(seg, coast);
+  var r = coast.rand("stacks", seg.index);
+  var n = 1 + Math.floor(3 * r());
+  var dir = hp.steepRight ? 1 : -1;
+  var edge = hp.steepRight ? seg.x1 : seg.x0;
+  for (var i = 0; i < n; i++) {
+    var x = edge + dir * (30 + 140 * r());
+    var a = coast.at(x);
+    var y = a.yh + (a.shore - a.yh) * (0.35 + 0.4 * r());
+    var s = (y - a.yh) / (coast.H - a.yh);
+    var hei = (60 + 90 * r()) * (0.4 + s);
+    var wid = (14 + 22 * r()) * (0.4 + s);
+    // a tall rock: upstream's rock() stretched upwards
+    canv.push(...Mount.rock(x, y, r() * 100, { wid: wid, hei: hei, sha: 3, tex: 30 }));
+    // bedding lines across the stack
+    for (var b = 1; b < 4; b++) {
+      var by = y - hei * 0.85 * (b / 4);
+      canv.push(...stroke([[x - wid * 0.5, by], [x, by + 1], [x + wid * 0.5, by]], { col: tone("rock", 0.15), wid: 0.8 }));
+    }
+    // foam around the base
+    var foam = [];
+    for (var k = 0; k <= 8; k++) foam.push([x - wid * 1.1 + (wid * 2.2 * k) / 8, y + 1 + 1.5 * Math.sin(k * 1.7)]);
+    canv.push(...poly(foam.concat(foam.map((p) => [p[0], p[1] - 4]).reverse()), { fil: body("foam"), str: NONE }));
+    canv.push(...stroke(foam.map((p) => [p[0], p[1] - 4]), { col: tone("foam", 0.25), wid: 0.8 }));
+  }
   return canv;
 }

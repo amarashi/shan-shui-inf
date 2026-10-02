@@ -229,6 +229,16 @@ Headland: start from `flatMount`, which already clips the top flat, computes the
 
 Build each layer in isolation on a specimen sheet first, then compose. After composing, check the contact sheet for: a readable horizon, clear separation of sea, surf, sand and land, depth (far things paler and finer), and variety between seeds.
 
+*As built, first pass (3 October 2026):*
+
+- The engine has scenes: `upstream` (the original, pinned by the engine golden) and `coast` (`src/world/scenes/`). The page shows the coast by default; `?scene=upstream` shows the original. The coast view uses the full 800 units of height (no upstream zoom).
+- Layers: `sky` (cloud bands, birds), `far` (upstream `distMount`, low and pale, on the horizon), `sea` (swell rows spaced against a fixed depth, ending at the waterline), `stacks` (off the steep flank of "stacks" headlands), `surf` (2 to 4 breaker lines per beach, broken into runs with bumpy foam crests and a shaded face), `beach` (dune crest with hummocks and hatching, marram tufts, sand stipple, tide wrack), `swash` (lobed foam edge, wet sand, reflection), `headland` (asymmetric sandstone mesa with strata, joints, undercut, talus, rock platform, heath top, textured near slope). The `near` layer (foreground heath and trees) is flora and left to Phase 4.
+- The swell rows are spaced against a fixed depth bent 30% towards the local shore, not `(shore - yh)` as written above: spacing against the local shore squeezed every row into the thin strip of sea in front of a headland.
+- Coast shapes use `Noise.z()` (standardised noise); layers are drawn in pieces on a global lattice so chunks join without seams.
+- Found and fixed an upstream bug: `PolyTools.triangulate` recursed forever on very flat triangles (NaN area). Upstream never drew low `distMount`s, so it never hit it.
+- Weight: about 4,500 SVG elements and 1.5 MB per first screen (upstream: about 41,000 and 14 MB); 54 ms to generate in Node. `far` alone is about 1,000 elements because of `distMount`'s triangulation; easy to cut later.
+- Review tools: `pnpm specimen <layer> [--guides] [--layers a,b] [--w 1000 --x .. --y ..]`, `pnpm sheet --source modules`.
+
 **CHECKPOINT 2**: contact sheet of 8 seeds in the `ink` palette with sky, sea, surf, beach and headlands. Amir reviews composition before any flora, figures or colour work.
 
 ### Phase 4: flora, structures, figures (L)

@@ -8,15 +8,17 @@ import { palettes } from "../src/render/palette.js";
 import { WINDX, WINDY } from "../src/world/chunks.js";
 
 // --- seed (upstream parseArgs: the raw text after "seed=", not URL-decoded) ---
-// Also ?palette=<name> (not in upstream): ink (default) or roles.
+// Also (not in upstream) ?palette=ink|roles and ?scene=coast|upstream.
 var SEED = "" + new Date().getTime();
 var PALETTE = "ink";
+var SCENE = "coast";
 var par = window.location.href.split("?")[1];
 if (par != undefined) {
   par.split("&").forEach(function (kv) {
     var e = kv.split("=");
     if (e[0] == "seed") SEED = e[1] == "" ? SEED : e[1];
     if (e[0] == "palette" && palettes[e[1]]) PALETTE = e[1];
+    if (e[0] == "scene" && (e[1] == "coast" || e[1] == "upstream")) SCENE = e[1];
   });
 }
 // --- the world: generated in a worker, synced into one <svg> created once ---
@@ -31,6 +33,7 @@ const scroller = createScroller({
   group: document.getElementById("G"),
   worker: worker,
   seed: SEED,
+  scene: SCENE,
   palette: PALETTE,
   onViewBox: (vb) => document.getElementById("SVG").setAttribute("viewBox", vb),
 });
