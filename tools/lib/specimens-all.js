@@ -20,3 +20,21 @@ specimen("oceanPool", { box: [-35, -16, 70, 24], draw: (x, y) => oceanPool(x, y,
 specimen("flags", { box: [-45, -22, 90, 26], draw: (x, y) => flags(x, y, { gap: 60, hei: 14 }) });
 specimen("sailboat", { box: [-30, -45, 60, 52], draw: (x, y) => sailboat(x, y, { len: 30 }) });
 specimen("dinghy", { box: [-18, -8, 36, 14], draw: (x, y) => dinghy(x, y, { len: 20 }) });
+import { person } from "../../src/elements/people.js";
+
+// one cell per pose, with a variety of hats and items
+const FIGS = [
+  { pose: "standing", hat: "sun", item: "none" },
+  { pose: "walking", hat: "none", item: "bag" },
+  { pose: "walking", hat: "cap", item: "towel" },
+  { pose: "sitting", hat: "sun", item: "towel" },
+  { pose: "carrying", hat: "none", item: "board" },
+  { pose: "carrying", hat: "cap", item: "board", fli: true },
+  { pose: "fishing", hat: "sun", item: "rod" },
+  { pose: "fishing", hat: "cap", item: "rod", fli: true },
+  { pose: "prone", hat: "none", item: "board" },
+  { pose: "standing", hat: "cap", item: "board" },
+  { pose: "sitting", hat: "none", item: "towel", fli: true },
+  { pose: "walking", hat: "sun", item: "none", fli: true },
+];
+specimen("person", { box: [-30, -25, 60, 30], draw: (x, y, i) => person(x, y, { size: 20, ...FIGS[i % FIGS.length] }) });
