@@ -1,13 +1,10 @@
 // The upstream world: mountplanner, chunkloader and chunkrender, with upstream's global
 // MEM turned into per-world state. createWorld() returns an object; nothing is global.
 import { random } from "../rng.js";
-import { Arch } from "../elements/structures.js";
-import { water } from "../elements/sea.js";
-import { Mount } from "../elements/terrain.js";
-import { randChoice } from "../geom.js";
 import { Noise } from "../noise.js";
 import { ink } from "../render/palette.js";
 import { toSVG } from "../render/svg.js";
+import { LAYERS } from "./layers.js";
 
 /** @param {{palette?: {paint: Function}}} [opts] palette defaults to ink (the upstream look) */
 export function createWorld(opts = {}) {
@@ -135,9 +132,9 @@ export function createWorld(opts = {}) {
 
   function chunkloader(xmin, xmax) {
     var add = function(nch) {
-      // Each chunk keeps its display list and is rendered to markup once, here.
-      // Upstream replaced any "NaN" in the markup with -1000 here. No generator produces
-      // NaN (none in about 62,000 chunks from 490 worlds); test/no-nan.test.js guards it.
+      // Each chunk keeps its display list and is rendered to markup once, here. (Upstream
+      // also replaced any "NaN" in the markup with -1000. No generator produces NaN;
+      // test/no-nan.test.js guards it.)
       nch.canv = toSVG(nch.list, palette);
       if (MEM.chunks.length == 0) {
         MEM.chunks.push(nch);
@@ -171,56 +168,11 @@ export function createWorld(opts = {}) {
       }
 
       for (var i = 0; i < plan.length; i++) {
-        if (plan[i].tag == "mount") {
-          add({
-            tag: plan[i].tag,
-            x: plan[i].x,
-            y: plan[i].y,
-            list: Mount.mountain(plan[i].x, plan[i].y, i * 2 * random()),
-            //{col:function(x){return "rgba(100,100,100,"+(0.5*random()*plan[i].y/MEM.windy)+")"}}),
-          });
-          add({
-            tag: plan[i].tag,
-            x: plan[i].x,
-            y: plan[i].y - 10000,
-            list: water(plan[i].x, plan[i].y, i * 2),
-          });
-        } else if (plan[i].tag == "flatmount") {
-          add({
-            tag: plan[i].tag,
-            x: plan[i].x,
-            y: plan[i].y,
-            list: Mount.flatMount(
-              plan[i].x,
-              plan[i].y,
-              2 * random() * Math.PI,
-              {
-                wid: 600 + random() * 400,
-                hei: 100,
-                cho: 0.5 + random() * 0.2,
-              },
-            ),
-          });
-        } else if (plan[i].tag == "distmount") {
-          add({
-            tag: plan[i].tag,
-            x: plan[i].x,
-            y: plan[i].y,
-            list: Mount.distMount(plan[i].x, plan[i].y, random() * 100, {
-              hei: 150,
-              len: randChoice([500, 1000, 1500]),
-            }),
-          });
-        } else if (plan[i].tag == "boat") {
-          add({
-            tag: plan[i].tag,
-            x: plan[i].x,
-            y: plan[i].y,
-            list: Arch.boat01(plan[i].x, plan[i].y, random(), {
-              sca: plan[i].y / 800,
-              fli: randChoice([true, false]),
-            }),
-          });
+        var layer = LAYERS[plan[i].tag];
+        if (!layer) continue;
+        var parts = layer.draw(plan[i], i);
+        for (var k = 0; k < parts.length; k++) {
+          add({ tag: plan[i].tag, x: plan[i].x, y: parts[k].y, list: parts[k].list });
         }
       }
     }
