@@ -8,7 +8,11 @@
 // end we hash every chunk in MEM.chunks, in order, so a later mismatch can be traced to one
 // chunk (tag, x, y). Hashing happens in the page; only hashes cross into Node, because the
 // on-screen SVG alone is about 14 MB.
+//
+// Every hash is recorded twice: raw (byte for byte) and after normalise() (see
+// tools/lib/normalise.js), which absorbs last-bit maths differences between engines.
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { normalise } from "./lib/normalise.js";
 import { launch, openUpstream, xcroll } from "./lib/upstream.js";
 
 export const SEEDS = ["1", "42", "coast", "sydney", "1234567890123"];
@@ -19,7 +23,8 @@ export const STEPS = [0, 400, 400, 400, -400, -400, -400, -400, -400];
 const GOLDEN = new URL("../golden/upstream.json", import.meta.url);
 
 function snapshot(page, withChunks) {
-  return page.evaluate(async (withChunks) => {
+  return page.evaluate(async ({ withChunks, normaliseSrc }) => {
+    const normalise = (0, eval)("(" + normaliseSrc + ")");
     const enc = new TextEncoder();
     const sha = async (s) =>
       [...new Uint8Array(await crypto.subtle.digest("SHA-256", enc.encode(s)))]
@@ -32,16 +37,24 @@ function snapshot(page, withChunks) {
       chunkCount: MEM.chunks.length,
       viewBytes: MEM.canv.length,
       viewSha: await sha(MEM.canv),
+      viewNormSha: await sha(normalise(MEM.canv)),
     };
     if (withChunks) {
       out.chunks = [];
       for (const c of MEM.chunks) {
-        out.chunks.push({ tag: c.tag, x: c.x, y: c.y, bytes: c.canv.length, sha: await sha(c.canv) });
+        out.chunks.push({
+          tag: c.tag,
+          x: c.x,
+          y: c.y,
+          bytes: c.canv.length,
+          sha: await sha(c.canv),
+          normSha: await sha(normalise(c.canv)),
+        });
       }
       out.worldSha = await sha(MEM.chunks.map((c) => c.canv).join("\n"));
     }
     return out;
-  }, withChunks);
+  }, { withChunks, normaliseSrc: normalise.toString() });
 }
 
 export async function recordSeed(browser, seed) {
