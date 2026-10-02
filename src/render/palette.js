@@ -24,6 +24,8 @@ export const ROLES = [
   "sky",
   "structure",
   "cloth",
+  "flag-red", // surf lifesaving flags: red over yellow
+  "flag-yellow",
 ];
 
 /**
@@ -77,6 +79,8 @@ const ROLE_RGB = {
   sky: [120, 170, 255],
   structure: [200, 20, 160],
   cloth: [230, 30, 30],
+  "flag-red": [200, 0, 0],
+  "flag-yellow": [240, 200, 0],
 };
 export const roles = {
   name: "roles",
