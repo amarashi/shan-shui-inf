@@ -9,7 +9,8 @@
 // The rules for which chunks a view needs, which to evict and in what order to paint are
 // exported, so the page-side scroller (src/embed/scroller.js) follows exactly the same ones.
 import { createGenerator } from "./generator.js";
-import { CHUNK, REACH } from "./plan.js";
+import { CHUNK } from "./plan.js";
+import { SCENES } from "./scenes/index.js";
 
 export { CHUNK };
 
@@ -21,15 +22,15 @@ export const WINDY = 800;
 export const KEEP = 2 * CHUNK;
 
 /** Chunk indices that can put a record inside [xmin, xmax], as [kmin, kmax]. */
-export function span(xmin, xmax) {
-  return [Math.floor((xmin - REACH) / CHUNK), Math.floor((xmax + REACH) / CHUNK)];
+export function span(xmin, xmax, scene = SCENES.upstream) {
+  return [Math.floor((xmin - scene.reach) / CHUNK), Math.floor((xmax + scene.reach) / CHUNK)];
 }
 
 /** Chunks to have loaded, and the range to keep, for a view starting at cursx. */
-export function needs(cursx) {
-  var lo = cursx - CHUNK;
-  var hi = cursx + WINDX + CHUNK;
-  return { load: span(lo, hi), keep: span(lo - KEEP, hi + KEEP) };
+export function needs(cursx, scene = SCENES.upstream) {
+  var lo = cursx - scene.margin;
+  var hi = cursx + WINDX + scene.margin;
+  return { load: span(lo, hi, scene), keep: span(lo - KEEP, hi + KEEP, scene) };
 }
 
 /**
@@ -40,22 +41,23 @@ export function byDepth(a, b) {
   return a.y - b.y || a.k - b.k || a.i - b.i || a.p - b.p;
 }
 
-/** Upstream's chunkrender rule: parts whose record x is within one chunk width of the view. */
-export function inView(part, cursx) {
-  return cursx - CHUNK < part.x && part.x < cursx + WINDX + CHUNK;
+/** Upstream's chunkrender rule: parts whose record x is within the scene's margin of the view. */
+export function inView(part, cursx, scene = SCENES.upstream) {
+  return cursx - scene.margin < part.x && part.x < cursx + WINDX + scene.margin;
 }
 
-/** From upstream calcViewBox(). */
-export function viewBox(cursx) {
-  var zoom = 1.142;
+/** From upstream calcViewBox(); the zoom is the scene's. */
+export function viewBox(cursx, scene = SCENES.upstream) {
+  var zoom = scene.zoom;
   return "" + cursx + " 0 " + WINDX / zoom + " " + WINDY / zoom;
 }
 
 /**
- * @param {{seed: string, palette?: {paint: Function}}} opts
+ * @param {{seed: string, scene?: string, palette?: {paint: Function}, layers?: string[]}} opts
  */
 export function createWorld(opts) {
   var gen = createGenerator(opts);
+  var scene = gen.scene;
   /** @type {Map<number, import("./generator.js").Part[]>} */
   var cache = new Map();
   var sorted = null; // all cached parts in paint order, rebuilt when the cache changes
@@ -85,7 +87,7 @@ export function createWorld(opts) {
   }
 
   function update() {
-    var n = needs(MEM.cursx);
+    var n = needs(MEM.cursx, scene);
     for (var k of cache.keys()) {
       if (k < n.keep[0] || k > n.keep[1]) {
         cache.delete(k);
@@ -101,7 +103,7 @@ export function createWorld(opts) {
       sorted.sort(byDepth);
       MEM.chunks = sorted;
     }
-    shown = sorted.filter((p) => inView(p, MEM.cursx));
+    shown = sorted.filter((p) => inView(p, MEM.cursx, scene));
   }
 
   function xcroll(v) {
@@ -114,8 +116,10 @@ export function createWorld(opts) {
     update: update,
     xcroll: xcroll,
     calcViewBox: function () {
-      return viewBox(MEM.cursx);
+      return viewBox(MEM.cursx, scene);
     },
+    scene: scene,
+    context: gen.context,
     noise: gen.noise,
     chunk: chunk,
     /** Parts in the view, in paint order. */

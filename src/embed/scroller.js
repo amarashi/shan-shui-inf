@@ -8,14 +8,16 @@
 //   await s.scrollBy(400);     // view complete at the new position
 import { createPartView } from "../render/dom.js";
 import { byDepth, inView, needs, viewBox } from "../world/chunks.js";
+import { SCENES } from "../world/scenes/index.js";
 
 var nextGen = 0;
 
 /**
- * @param {{group: SVGGElement, worker: Worker, seed: string, palette?: string,
+ * @param {{group: SVGGElement, worker: Worker, seed: string, scene?: string, palette?: string,
  *   onViewBox?: (vb: string) => void}} opts
  */
 export function createScroller(opts) {
+  var scene = SCENES[opts.scene || "upstream"];
   var worker = opts.worker;
   var gen = nextGen++;
   var view = createPartView(opts.group);
@@ -26,14 +28,14 @@ export function createScroller(opts) {
   var waiters = [];
   var shown = [];
 
-  worker.postMessage({ type: "init", gen: gen, seed: String(opts.seed), palette: opts.palette || "ink" });
+  worker.postMessage({ type: "init", gen: gen, seed: String(opts.seed), scene: scene.name, palette: opts.palette || "ink" });
   worker.addEventListener("message", onMessage);
 
   function onMessage(e) {
     var m = e.data;
     if (m.gen !== gen || m.type !== "chunk") return;
     requested.delete(m.k);
-    var n = needs(cursx);
+    var n = needs(cursx, scene);
     if (m.k < n.keep[0] || m.k > n.keep[1]) return; // the view moved on
     cache.set(m.k, m.parts);
     sorted = null;
@@ -42,7 +44,7 @@ export function createScroller(opts) {
 
   /** Evict far chunks, request missing ones, paint what is loaded, resolve when complete. */
   function refresh() {
-    var n = needs(cursx);
+    var n = needs(cursx, scene);
     for (var k of cache.keys()) {
       if (k < n.keep[0] || k > n.keep[1]) {
         cache.delete(k);
@@ -68,8 +70,8 @@ export function createScroller(opts) {
       for (var parts of cache.values()) sorted.push.apply(sorted, parts);
       sorted.sort(byDepth);
     }
-    shown = sorted.filter((p) => inView(p, cursx));
-    if (opts.onViewBox) opts.onViewBox(viewBox(cursx));
+    shown = sorted.filter((p) => inView(p, cursx, scene));
+    if (opts.onViewBox) opts.onViewBox(viewBox(cursx, scene));
     view.sync(shown);
 
     var complete = true;

@@ -4,10 +4,14 @@
 //
 //   pnpm specimen tree04
 //   pnpm specimen --list
+//   pnpm specimen sea --guides            coast layer strips, with the coast model drawn in red
+//   pnpm specimen coast --layers sea,surf --count 4
 //
 // Output: out/specimen-<name>.png
 import { mkdirSync } from "node:fs";
 import { parseArgs } from "node:util";
+import { createWorld, WINDX, WINDY } from "../src/world/chunks.js";
+import { paperDataUrl } from "./lib/paper.js";
 import { launch, openUpstream } from "./lib/upstream.js";
 
 // at: where the element is drawn, default [0, 0]. Landforms use a realistic y, because
@@ -46,56 +50,132 @@ export const ELEMENTS = {
   man: { box: [-40, -60, 80, 72], draw: "(x,y)=>Man.man(x,y,{fli:randChoice([true,false]),sca:0.42})" },
 };
 
+
+// Coast layers, drawn by the engine in Node: a strip of the coast scene with only some
+// layers. `layers` null means every layer.
+const COAST = {
+  coast: { layers: null },
+  sky: { layers: ["sky"] },
+  far: { layers: ["far"] },
+  sea: { layers: ["sea"] },
+  stacks: { layers: ["stacks"] },
+  surf: { layers: ["surf"] },
+  swash: { layers: ["swash"] },
+  beach: { layers: ["beach"] },
+  headland: { layers: ["headland"] },
+  waterline: { layers: ["sea", "surf", "swash"] },
+  shore: { layers: ["sea", "surf", "swash", "beach"] },
+};
+
 const COLS = 4;
 const COUNT = 12;
 const CELL_PX = 520;
 
 const { values, positionals } = parseArgs({
   allowPositionals: true,
-  options: { list: { type: "boolean" }, seed: { type: "string", default: "specimen" } },
+  options: {
+    list: { type: "boolean" },
+    seed: { type: "string", default: "specimen" },
+    layers: { type: "string" }, // comma-separated, overrides a coast entry's layers
+    guides: { type: "boolean" }, // draw the coast model's horizon, shore and dune lines
+    x: { type: "string", default: "0" }, // coast strips start here
+    count: { type: "string", default: String(COUNT) },
+  },
 });
 const name = positionals[0];
+const all = () => `upstream elements: ${Object.keys(ELEMENTS).join(", ")}\ncoast layers: ${Object.keys(COAST).join(", ")}`;
 if (values.list || !name) {
-  console.log(`elements: ${Object.keys(ELEMENTS).join(", ")}`);
+  console.log(all());
   process.exit(values.list ? 0 : 2);
 }
-const el = ELEMENTS[name];
-if (!el) {
-  console.error(`"${name}" is not available yet. Elements: ${Object.keys(ELEMENTS).join(", ")}`);
+if (!ELEMENTS[name] && !COAST[name]) {
+  console.error(`"${name}" is not available yet.\n${all()}`);
   process.exit(2);
 }
-
-const browser = await launch();
-// The page seed fixes the Noise table, which upstream fills on first use and never reseeds.
-const page = await openUpstream(browser, values.seed);
-await page.evaluate(
-  ({ name, el, COLS, COUNT, CELL_PX }) => {
-    const draw = (0, eval)(el.draw);
-    const [bx, by, bw, bh] = el.box;
-    const cellH = Math.round((CELL_PX * bh) / bw);
-    const labelH = 24;
-    const rows = Math.ceil(COUNT / COLS);
-    const W = COLS * CELL_PX;
-    const H = rows * (cellH + labelH);
-    let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" style="mix-blend-mode:multiply;display:block">`;
-    for (let i = 0; i < COUNT; i++) {
-      Math.seed(`${name}:${i}`);
-      const cx = (i % COLS) * CELL_PX;
-      const cy = Math.floor(i / COLS) * (cellH + labelH);
-      svg +=
-        `<text x="${cx + 6}" y="${cy + 17}" font-family="sans-serif" font-size="14" fill="#555">${name}:${i}</text>` +
-        `<rect x="${cx + 0.5}" y="${cy + labelH + 0.5}" width="${CELL_PX - 1}" height="${cellH - 1}" fill="none" stroke="rgba(0,0,0,0.12)"/>` +
-        `<svg x="${cx}" y="${cy + labelH}" width="${CELL_PX}" height="${cellH}" viewBox="${bx} ${by} ${bw} ${bh}">` +
-        draw(...(el.at ?? [0, 0]), i) +
-        `</svg>`;
-    }
-    svg += "</svg>";
-    document.body.innerHTML = `<div id="SPEC" style="display:inline-block">${svg}</div>`;
-  },
-  { name, el, COLS, COUNT, CELL_PX },
-);
 mkdirSync(new URL("../out/", import.meta.url), { recursive: true });
-const out = `out/specimen-${name}.png`;
-await page.locator("#SPEC").screenshot({ path: out });
+const out = `out/specimen-${name}${values.layers ? "-" + values.layers.replaceAll(",", "+") : ""}.png`;
+const browser = await launch();
+
+if (ELEMENTS[name]) {
+  const el = ELEMENTS[name];
+  // The page seed fixes the Noise table, which upstream fills on first use and never reseeds.
+  const page = await openUpstream(browser, values.seed);
+  await page.evaluate(
+    ({ name, el, COLS, COUNT, CELL_PX }) => {
+      const draw = (0, eval)(el.draw);
+      const [bx, by, bw, bh] = el.box;
+      const cellH = Math.round((CELL_PX * bh) / bw);
+      const labelH = 24;
+      const rows = Math.ceil(COUNT / COLS);
+      const W = COLS * CELL_PX;
+      const H = rows * (cellH + labelH);
+      let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" style="mix-blend-mode:multiply;display:block">`;
+      for (let i = 0; i < COUNT; i++) {
+        Math.seed(`${name}:${i}`);
+        const cx = (i % COLS) * CELL_PX;
+        const cy = Math.floor(i / COLS) * (cellH + labelH);
+        svg +=
+          `<text x="${cx + 6}" y="${cy + 17}" font-family="sans-serif" font-size="14" fill="#555">${name}:${i}</text>` +
+          `<rect x="${cx + 0.5}" y="${cy + labelH + 0.5}" width="${CELL_PX - 1}" height="${cellH - 1}" fill="none" stroke="rgba(0,0,0,0.12)"/>` +
+          `<svg x="${cx}" y="${cy + labelH}" width="${CELL_PX}" height="${cellH}" viewBox="${bx} ${by} ${bw} ${bh}">` +
+          draw(...(el.at ?? [0, 0]), i) +
+          `</svg>`;
+      }
+      svg += "</svg>";
+      document.body.innerHTML = `<div id="SPEC" style="display:inline-block">${svg}</div>`;
+    },
+    { name, el, COLS, COUNT, CELL_PX },
+  );
+  await page.locator("#SPEC").screenshot({ path: out });
+} else {
+  const layers = values.layers ? values.layers.split(",") : COAST[name].layers;
+  const count = Number(values.count);
+  const cols = Math.min(COLS, count);
+  const x0 = Number(values.x);
+  const cellW = cols === 1 ? 2000 : CELL_PX * 2; // coast strips are wide; 2 columns read better
+  const ncols = cols === 1 ? 1 : 2;
+  const cellH = Math.round((cellW * WINDY) / WINDX);
+  const labelH = 24;
+  const rows = Math.ceil(count / ncols);
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${ncols * cellW}" height="${rows * (cellH + labelH)}" style="display:block">`;
+  for (let i = 0; i < count; i++) {
+    const seed = `${name}:${i}`;
+    const world = createWorld({ seed, scene: "coast", layers: layers ?? undefined });
+    world.MEM.cursx = x0;
+    world.update();
+    let guides = "";
+    if (values.guides) {
+      const c = world.context.coast;
+      const line = (f) =>
+        Array.from({ length: 151 }, (_, j) => x0 + (j * WINDX) / 150)
+          .map((x) => `${x.toFixed(1)},${f(x).toFixed(1)}`)
+          .join(" ");
+      const seams = c
+        .segmentsIn(x0, x0 + WINDX)
+        .map((s) => `<line x1="${s.x0}" y1="0" x2="${s.x0}" y2="${WINDY}" stroke="rgba(0,0,255,0.35)" stroke-width="2" stroke-dasharray="8 8"/>`)
+        .join("");
+      guides =
+        seams +
+        `<polyline points="${line(() => c.yh)}" fill="none" stroke="rgba(255,0,0,0.5)" stroke-width="2"/>` +
+        `<polyline points="${line(c.shore)}" fill="none" stroke="rgba(255,0,0,0.6)" stroke-width="2"/>` +
+        `<polyline points="${line(c.dune)}" fill="none" stroke="rgba(255,0,0,0.35)" stroke-width="2"/>`;
+    }
+    const cx = (i % ncols) * cellW;
+    const cy = Math.floor(i / ncols) * (cellH + labelH);
+    svg +=
+      `<text x="${cx + 6}" y="${cy + 17}" font-family="sans-serif" font-size="14" fill="#555">${seed}  layers: ${layers ? layers.join(", ") : "all"}</text>` +
+      `<svg x="${cx}" y="${cy + labelH}" width="${cellW}" height="${cellH}" viewBox="${world.calcViewBox()}" style="mix-blend-mode:multiply">` +
+      world.MEM.canv +
+      guides +
+      `</svg>` +
+      `<rect x="${cx + 0.5}" y="${cy + labelH + 0.5}" width="${cellW - 1}" height="${cellH - 1}" fill="none" stroke="rgba(0,0,0,0.12)"/>`;
+  }
+  svg += "</svg>";
+  const page = await browser.newPage({ viewport: { width: ncols * cellW + 20, height: 900 } });
+  await page.setContent(
+    `<body style="margin:0;background:url(${await paperDataUrl()})"><div id="SPEC" style="display:inline-block">${svg}</div></body>`,
+  );
+  await page.locator("#SPEC").screenshot({ path: out });
+}
 await browser.close();
 console.log(`wrote ${out}`);

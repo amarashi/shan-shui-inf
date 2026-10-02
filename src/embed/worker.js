@@ -1,7 +1,7 @@
 // Web Worker: generates chunks (and the paper texture) off the main thread.
 //
 // Messages in:
-//   { type: "init", gen, seed, palette }        start a world (gen numbers replies)
+//   { type: "init", gen, seed, scene, palette } start a world (gen numbers replies)
 //   { type: "chunks", gen, ks: number[] }       generate these chunks, nearest first
 //   { type: "forget", gen, kmin, kmax }         drop cached plans outside the range
 //   { type: "paper", gen }                      draw the 512 x 512 paper tile
@@ -20,7 +20,7 @@ var genId = -1;
 self.onmessage = function (e) {
   var m = e.data;
   if (m.type === "init") {
-    gen = createGenerator({ seed: m.seed, palette: palettes[m.palette] || palettes.ink });
+    gen = createGenerator({ seed: m.seed, scene: m.scene, palette: palettes[m.palette] || palettes.ink });
     genId = m.gen;
     return;
   }
