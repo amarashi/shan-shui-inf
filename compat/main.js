@@ -5,7 +5,7 @@
 // only inserts markup. Serve with Vite (pnpm dev), which resolves the worker's imports.
 import { createScroller } from "../src/embed/scroller.js";
 import { palettes } from "../src/render/palette.js";
-import { WINDX, WINDY } from "../src/world/chunks.js";
+import { WINDX, WINDY } from "../src/world/view.js";
 
 // --- seed (upstream parseArgs: the raw text after "seed=", not URL-decoded) ---
 // Also (not in upstream) ?palette=ink|roles and ?scene=coast|upstream.

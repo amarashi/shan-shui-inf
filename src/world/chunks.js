@@ -9,48 +9,9 @@
 // The rules for which chunks a view needs, which to evict and in what order to paint are
 // exported, so the page-side scroller (src/embed/scroller.js) follows exactly the same ones.
 import { createGenerator } from "./generator.js";
-import { CHUNK } from "./plan.js";
-import { SCENES } from "./scenes/index.js";
+import { byDepth, CHUNK, inView, KEEP, needs, span, viewBox, WINDX, WINDY } from "./view.js";
 
-export { CHUNK };
-
-/** View size in world units, as upstream (MEM.windx, MEM.windy). */
-export const WINDX = 3000;
-export const WINDY = 800;
-
-/** Chunks further than this beyond either edge of the view are evicted. */
-export const KEEP = 2 * CHUNK;
-
-/** Chunk indices that can put a record inside [xmin, xmax], as [kmin, kmax]. */
-export function span(xmin, xmax, scene = SCENES.upstream) {
-  return [Math.floor((xmin - scene.reach) / CHUNK), Math.floor((xmax + scene.reach) / CHUNK)];
-}
-
-/** Chunks to have loaded, and the range to keep, for a view starting at cursx. */
-export function needs(cursx, scene = SCENES.upstream) {
-  var lo = cursx - scene.margin;
-  var hi = cursx + WINDX + scene.margin;
-  return { load: span(lo, hi, scene), keep: span(lo - KEEP, hi + KEEP, scene) };
-}
-
-/**
- * Painter's order: larger y is nearer. Ties break by chunk, record and part, so the order
- * never depends on which chunk was generated first.
- */
-export function byDepth(a, b) {
-  return a.y - b.y || a.k - b.k || a.i - b.i || a.p - b.p;
-}
-
-/** Upstream's chunkrender rule: parts whose record x is within the scene's margin of the view. */
-export function inView(part, cursx, scene = SCENES.upstream) {
-  return cursx - scene.margin < part.x && part.x < cursx + WINDX + scene.margin;
-}
-
-/** From upstream calcViewBox(); the zoom is the scene's. */
-export function viewBox(cursx, scene = SCENES.upstream) {
-  var zoom = scene.zoom;
-  return "" + cursx + " 0 " + WINDX / zoom + " " + WINDY / zoom;
-}
+export { byDepth, CHUNK, inView, KEEP, needs, span, viewBox, WINDX, WINDY };
 
 /**
  * @param {{seed: string, scene?: string, palette?: {paint: Function}, layers?: string[]}} opts
@@ -87,7 +48,7 @@ export function createWorld(opts) {
   }
 
   function update() {
-    var n = needs(MEM.cursx, scene);
+    var n = needs(MEM.cursx, scene, MEM.windx);
     for (var k of cache.keys()) {
       if (k < n.keep[0] || k > n.keep[1]) {
         cache.delete(k);
@@ -103,7 +64,7 @@ export function createWorld(opts) {
       sorted.sort(byDepth);
       MEM.chunks = sorted;
     }
-    shown = sorted.filter((p) => inView(p, MEM.cursx, scene));
+    shown = sorted.filter((p) => inView(p, MEM.cursx, scene, MEM.windx));
   }
 
   function xcroll(v) {

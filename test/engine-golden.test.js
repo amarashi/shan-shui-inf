@@ -14,15 +14,23 @@ const KS = [-6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8];
 const VIEWS = [0, 1700, -2600];
 const sha = (s) => createHash("sha256").update(s).digest("hex");
 
+const SCENES = ["upstream", "coast"];
+
 function record() {
-  const out = { note: "Engine output hashes; see test/engine-golden.test.js", seeds: {} };
+  const out = { note: "Engine output hashes (ink palette); see test/engine-golden.test.js", scenes: {} };
+  for (const scene of SCENES) out.scenes[scene] = recordScene(scene);
+  return out;
+}
+
+function recordScene(scene) {
+  const out = { seeds: {} };
   for (const seed of SEEDS) {
-    const w = createWorld({ seed });
+    const w = createWorld({ seed, scene });
     const chunks = {};
     for (const k of KS) chunks[k] = sha(w.chunk(k).map((p) => p.canv).join("\n"));
     const views = {};
     for (const x of VIEWS) {
-      const v = createWorld({ seed });
+      const v = createWorld({ seed, scene });
       v.MEM.cursx = x;
       v.update();
       views[x] = sha(v.MEM.canv);
@@ -40,8 +48,12 @@ test("engine output matches golden/engine.json", () => {
   }
   expect(existsSync(FILE), "golden/engine.json is missing; record it with UPDATE_GOLDEN=1").toBe(true);
   const want = JSON.parse(readFileSync(FILE, "utf8"));
-  for (const seed of SEEDS) {
-    for (const k of KS) expect(got.seeds[seed].chunks[k], `seed ${seed}, chunk ${k}`).toBe(want.seeds[seed].chunks[k]);
-    for (const x of VIEWS) expect(got.seeds[seed].views[x], `seed ${seed}, view at ${x}`).toBe(want.seeds[seed].views[x]);
+  for (const scene of SCENES) {
+    const g = got.scenes[scene];
+    const w = want.scenes[scene];
+    for (const seed of SEEDS) {
+      for (const k of KS) expect(g.seeds[seed].chunks[k], `${scene} seed ${seed}, chunk ${k}`).toBe(w.seeds[seed].chunks[k]);
+      for (const x of VIEWS) expect(g.seeds[seed].views[x], `${scene} seed ${seed}, view at ${x}`).toBe(w.seeds[seed].views[x]);
+    }
   }
 });

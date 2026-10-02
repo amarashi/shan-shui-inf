@@ -13,7 +13,9 @@
     "golden:check": "node tools/golden.js check",
     "sheet": "node tools/sheet.js",
     "specimen": "node tools/specimen.js",
-    "perf": "node tools/perf.js"
+    "perf": "node tools/perf.js",
+    "build": "vite build -c vite.lib.config.js",
+    "perf:embed": "node tools/perf-embed.js"
   },
   "devDependencies": {
     "playwright": "^1.62.1",
@@ -24,5 +26,21 @@
   "dependencies": {
     "pure-rand": "^8.4.2",
     "simplex-noise": "^4.0.3"
-  }
+  },
+  "sideEffects": [
+    "./src/embed/element.js",
+    "./dist/element.js",
+    "./src/embed/worker.js"
+  ],
+  "exports": {
+    ".": "./src/index.js",
+    "./element": "./src/embed/element.js"
+  },
+  "files": [
+    "src",
+    "dist",
+    "LICENSE",
+    "NOTICE",
+    "README.md"
+  ]
 }

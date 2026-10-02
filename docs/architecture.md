@@ -66,3 +66,11 @@ Upstream's flat islands depended on a shared coverage array filled in scroll ord
 | Visual | `pnpm sheet --source modules [--palette roles]` | Contact sheet for review. |
 
 The specimen tool (`pnpm specimen <element>`) still draws upstream's elements from the upstream page. Phase 3 moves it onto the modules so new elements can be reviewed.
+
+## Since Phase 2 (updated 3 October 2026)
+
+- **Scenes** (`src/world/scenes/`): `upstream` (the original landscape) and `coast` (`coast.js` landscape layers, `coast-life.js` flora, structures, boats and people, `coast-registry.js` the layer registry and paint depths). The coast model is `src/world/coast.js`; view rules are `src/world/view.js`.
+- **Coast elements** (`src/elements/`): `sea.js` (swell, surf, swash), `beach.js`, `headland.js` (headland, stacks), `sky.js`, `natives.js` (flora), `buildings.js` (structures and boats), `people.js` (figures).
+- **Embedding** (`src/embed/`): `mount.js` (the `mount()` API), `element.js` (`<coast-inf>`), `scroller.js`, `worker.js`; `src/render/standalone.js` is `renderToSVG()`; `src/index.js` is the package entry.
+- **Black and white.** Colour palettes were built in Phase 5 and reverted at Amir's request; roles remain on every colour, and `ink` (plus the diagnostic `roles`) are the palettes.
+- **Tests** now also cover the coast scene (`coast.test.js`, `coast-scene.test.js`), embedding (`embed.test.js`), the built bundle from static files (`dist.test.js`), and both scenes in the engine golden master.

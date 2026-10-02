@@ -1,0 +1,12 @@
+import { startServer } from "./lib/server.js";
+import { launch } from "./lib/upstream.js";
+const s = await startServer(); const b = await launch();
+const p = await b.newPage({ viewport: { width: 1280, height: 1000 } });
+const errs = []; p.on("pageerror", (e) => errs.push(e.message)); p.on("console", (m) => m.type() === "error" && errs.push(m.text()));
+await p.goto(`${s.url}demo/index.html?seed=coast&mode=drift`);
+await p.evaluate(() => window.demo.scene.ready);
+await p.waitForTimeout(2500);
+await p.screenshot({ path: "out/demo.png", fullPage: true });
+console.log("errors", errs);
+console.log(await p.evaluate(() => ({ x: window.demo.scene.x, parts: document.querySelector("#hero div").shadowRoot.querySelectorAll("g > g").length })));
+await b.close(); await s.close();

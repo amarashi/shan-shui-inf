@@ -47,3 +47,12 @@ No runtime dependencies so far.
 
 - **`Noise.z()` for shapes.** The calibrated noise (like upstream's) varies only about +-0.12 around 0.47, so `k * Noise.noise()` barely moves; new coast code uses `Noise.z()`, the same noise standardised to mean 0 and spread 1. Upstream elements keep `Noise.noise()`.
 - **Coast layers are drawn in pieces on a global lattice** (64 or 128 units, jittered by a hash of the piece index), and a piece or a surf run is drawn whole by the chunk where it starts. Shapes then never break or taper at chunk edges.
+
+## Phase 6: embedding
+
+- **Shadow DOM per mount, with `isolation: isolate`.** Styles cannot leak in or out, and the SVG's `mix-blend-mode: multiply` blends only with the painting's own paper, never with the host page behind it.
+- **One worker per mount.** Simplest way to keep instances independent; each worker is small (27 kB gzipped) and idle once its view is drawn.
+- **The page side imports only `src/world/view.js`** (view rules and per-scene view settings), so the generator ships only in the worker.
+- **Library build uses `base: "./"`.** Otherwise Vite emits the worker URL as a root-absolute path and the painting never loads when the bundle is hosted in a sub-folder.
+- **`"private": true` stays in package.json** until Amir decides to publish (Checkpoint 4).
+- **No Canvas 2D backend (D7).** The SVG path meets the element and time budgets.

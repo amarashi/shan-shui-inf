@@ -11,7 +11,8 @@
 import { Noise } from "../noise.js";
 import { random, stream, withRandom } from "../rng.js";
 
-export const CHUNK = 512;
+export { CHUNK } from "./view.js";
+import { CHUNK } from "./view.js";
 /** Furthest a planned record can land from its chunk (flat islands: +-700). */
 export const REACH = 700;
 

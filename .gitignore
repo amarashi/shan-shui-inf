@@ -4,3 +4,4 @@ out/
 graft/
 *.log
 .ignore
+dist/

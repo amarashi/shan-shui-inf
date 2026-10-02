@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en-AU">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>coast-inf demo</title>
+    <style>
+      :root {
+        --ink: #2b2b2b;
+        --muted: #6b665c;
+        --paper: #f6f1e6;
+        --rule: rgba(0, 0, 0, 0.15);
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+      header, main, footer { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+      header { padding-top: 28px; }
+      h1 { font-size: 22px; margin: 0 0 4px; font-weight: 600; letter-spacing: 0.01em; }
+      p { margin: 0 0 12px; color: var(--muted); max-width: 70ch; }
+      .hero { margin: 16px 0 12px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+      .controls { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin: 0 0 28px; }
+      .controls label { display: flex; gap: 6px; align-items: center; color: var(--muted); font-size: 14px; }
+      input, select, button { font: inherit; font-size: 14px; color: var(--ink); background: #fff; border: 1px solid var(--rule); border-radius: 4px; padding: 6px 10px; }
+      input { width: 13ch; }
+      button { cursor: pointer; }
+      button.primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+      button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+      h2 { font-size: 16px; margin: 28px 0 8px; font-weight: 600; }
+      .strip { border: 1px solid var(--rule); }
+      code { font-size: 13px; background: rgba(0, 0, 0, 0.05); padding: 1px 4px; border-radius: 3px; }
+      footer { padding: 32px 16px 40px; color: var(--muted); font-size: 13px; }
+      footer a { color: inherit; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>coast-inf</h1>
+      <p>
+        A seeded, endlessly scrolling Australian coastline in ink: sea, surf, beaches, sandstone headlands, coastal
+        bush and people on the sand. Every seed is a different painting.
+      </p>
+    </header>
+
+    <main>
+      <div class="hero" id="hero"></div>
+
+      <div class="controls">
+        <button type="button" class="primary" id="new">New painting</button>
+        <label>Seed <input id="seed" aria-label="Seed" /></label>
+        <button type="button" id="go">Paint this seed</button>
+        <label>
+          Mode
+          <select id="mode">
+            <option value="drift">Drift</option>
+            <option value="scroll">Scroll (drag or arrow keys)</option>
+            <option value="static">Static</option>
+          </select>
+        </label>
+        <label>
+          Scene
+          <select id="scene">
+            <option value="coast">Coast</option>
+            <option value="upstream">Original {Shan, Shui}*</option>
+          </select>
+        </label>
+        <button type="button" id="download">Download SVG</button>
+      </div>
+
+      <h2>A second painting on the same page</h2>
+      <p>Each painting is independent: its own seed, worker and styles.</p>
+      <coast-inf class="strip" seed="harbour" height="180" mode="static"></coast-inf>
+    </main>
+
+    <footer>
+      Based on <a href="https://github.com/LingDong-/shan-shui-inf">{Shan, Shui}*</a> by Lingdong Huang (MIT).
+      Embed it with <code>&lt;coast-inf seed="..." mode="drift"&gt;</code> or <code>mount(element, options)</code>.
+    </footer>
+
+    <script type="module" src="./demo.js"></script>
+  </body>
+</html>

@@ -326,6 +326,15 @@ Requirements:
 - A demo page with a "new painting" button, seed display, palette switcher and SVG download.
 - README covering install, options, licence and attribution to Lingdong Huang.
 
+*As built (3 October 2026):*
+
+- API as above, minus `palette` (black and white only, D1): `mount(el, {seed, mode, height, scene, speed, label})` returns `{ready, seed, x, reseed, scrollTo, pause, play, toSVG, destroy}`; `renderToSVG({seed, x0, x1, scene, background, label})`; `<coast-inf seed mode height scene label>` (`src/embed/element.js`, sets `display: block` on itself). Entry `src/index.js`; `package.json` has `exports`, `files` and `sideEffects`, and stays `"private": true` so nothing can be published by accident.
+- Each mount: a shadow root (scoped styles, `isolation: isolate` so the multiply blend only mixes with its own paper), its own worker, a paper-coloured placeholder and a fade-in. Drift moves the viewBox every frame and asks the worker for chunks every 60 units; it pauses off screen (IntersectionObserver) and in hidden tabs, shows a Pause button, and is off when `prefers-reduced-motion: reduce`. Scroll mode: drag, horizontal wheel, arrow keys (focusable).
+- The page side no longer imports the generator: view rules and per-scene view settings moved to `src/world/view.js`. Page code (`mount` chunk) is 4 kB gzipped; the worker 27 kB; a page using the element loads about 32 kB gzipped (budget about 60 kB).
+- Budgets (`docs/performance.md`, `pnpm perf:embed`): first painting visible within 1.5 s throttled (measured median about 0.5 s; upstream 2.8 s), longest main-thread task under 200 ms (none over 50 ms measured), on-screen elements under 15,000 (measured 4,500 to 8,600; upstream 41,000). The Canvas fallback (D7) was not needed.
+- Found by testing the build from plain static files: the worker was requested from the site root. The library build now uses `base: "./"`, `mount()` rejects `ready` with a clear error if the worker fails to load, and `test/dist.test.js` serves `dist/` from a sub-folder.
+- Demo: `pnpm dev`, then `/demo/` (new painting, seed, mode, scene, Download SVG, and a second painting on the same page). README rewritten (install, options, behaviour, licence, attribution).
+
 **CHECKPOINT 4**: demo page reviewed before any publish step. Do not publish to npm or deploy without Amir's explicit go-ahead.
 
 ## 6. Testing summary

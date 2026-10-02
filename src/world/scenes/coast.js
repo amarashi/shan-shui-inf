@@ -2,16 +2,14 @@
 // headlands, back to front. Every layer reads the same coast model.
 import { createCoast } from "../coast.js";
 import { CHUNK } from "../plan.js";
+import { SCENE_VIEW } from "../view.js";
 import { band, COAST_LAYERS, DEPTH, registerCoastLayer } from "./coast-registry.js";
 import { registerLifeLayers } from "./coast-life.js";
 
 export { band, COAST_LAYERS, DEPTH, registerCoastLayer };
 
 export const coast = {
-  name: "coast",
-  zoom: 1,
-  margin: 700,
-  reach: 0,
+  ...SCENE_VIEW.coast,
   layers: COAST_LAYERS,
   context: (seed) => ({ seed: String(seed), coast: createCoast(seed) }),
   plan: function (k, ctx, only) {
