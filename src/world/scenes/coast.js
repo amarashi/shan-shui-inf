@@ -50,3 +50,11 @@ export const coast = {
   },
   forget: () => {},
 };
+
+// --- layers, back to front ---
+import { swell } from "../../elements/sea.js";
+
+registerCoastLayer({
+  name: "sea",
+  draw: (r, i, ctx) => [{ y: r.y, list: swell(r.x0, r.x1, ctx.coast) }],
+});
